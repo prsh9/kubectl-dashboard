@@ -1,0 +1,21 @@
+{
+  "name": "kubedesktop",
+  "version": "0.1.0",
+  "description": "Read Only Desktop Client for Kube",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "PS",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "@vue/devtools": "^5.1.1",
+    "electron": "^5.0.6"
+  },
+  "dependencies": {
+    "@kubernetes/client-node": "^0.10.2",
+    "handlebars": "^4.1.2",
+    "materialize-css": "^1.0.0-rc.2",
+    "vue": "^2.6.10"
+  }
+}

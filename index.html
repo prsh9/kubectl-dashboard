@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link type="text/css" rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css"
+    media="screen, projection" />
+
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <script src="http://localhost:8098"></script>
+  <script src="node_modules/vue/dist/vue.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div id="headerContent">
+      <h2>{{content}}</h2>
+    </div>
+    <div id="mainContent">
+      <div id="k8table">
+        <k8-table v-bind:k8data="k8data" inline-template>
+          <div id="k8table_parent">
+            <div id="table_content" v-show="status">
+              <table>
+                <thead>
+                  <tr>
+                    <th v-for="header in headers">{{header}}</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr is="pod-row" v-for="(row, index) in pod_rows" :row="row"></tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="err_content">
+              <div v-show="!status">
+                <p>Error : {{k8data.data}}</p>
+              </div>
+            </div>
+          </div>
+        </k8-table>
+      </div>
+    </div>
+  </div>
+
+  <!-- You can also require other files to run in this process -->
+  <script src="./k8s_controller.js"></script>
+  <script type="text/javascript" src="node_modules/materialize-css/dist/js/materialize.min.js"></script>
+</body>
+
+</html>
