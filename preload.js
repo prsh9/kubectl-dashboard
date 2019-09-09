@@ -1,15 +1,9 @@
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.
-const k8s = require('@kubernetes/client-node');
-const handlebars = require('handlebars');
+const kubeclient = require('kubernetes-client')
 
 function init() {
-//  const kc = new k8s.KubeConfig();
-//  kc.loadFromDefault();
-//  const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
-  window.k8s = k8s;
-//  window.k8sApi = k8sApi;
-  window.handlebars = handlebars;
+  window.kubeclient = kubeclient;
 }
 
 const _setImmediate = setImmediate

@@ -81,20 +81,8 @@ Vue.component('pod-row', {
     }
 });
 
-function getStatusColor(status) {
-    switch (status.toLowerCase()) {
-        case "running":
-        case "succeeded":
-            return "green";
-        case "pending":
-            return "yellow";
-        default:
-            return "red";
-    }
-}
-
 function populate_pod_list() {
-    return window.k8sApi.listPodForAllNamespaces().then((res) => {
+    return window.client.api.v1.pods.get().then((res) => {
         return {
             "status": true,
             "data": res.body
@@ -117,11 +105,8 @@ function refreshTable(k8table) {
 }
 
 function init() {
-    const kc = new window.k8s.KubeConfig();
-    kc.loadFromDefault();
-    const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
-    window.k8sApi = k8sApi;
-    window.kc = kc;
+    const client = new window.kubeclient.Client({ version: '1.13' })
+    window.client = client;
 }
 
 function initVue() {

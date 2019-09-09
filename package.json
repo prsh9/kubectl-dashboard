@@ -13,8 +13,8 @@
     "electron": "^5.0.6"
   },
   "dependencies": {
-    "@kubernetes/client-node": "^0.10.2",
     "handlebars": "^4.1.2",
+    "kubernetes-client": "^8.3.4",
     "materialize-css": "^1.0.0-rc.2",
     "vue": "^2.6.10"
   }
