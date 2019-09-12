@@ -1,3 +1,4 @@
+
 Vue.component('k8-table', {
     props: {
         k8data: {
@@ -6,7 +7,7 @@ Vue.component('k8-table', {
     },
     data: function () {
         return { 
-            headers: ["NameSpace", "Name", "Status"]
+            headers: ["NameSpace", "Name", "Status", "Pod IP"]
         }
     },
     computed: {
@@ -44,6 +45,7 @@ Vue.component('pod-row', {
     <td>{{pod_namespace}}</td>
     <td>{{pod_name}}</td>
     <td :class="pod_status_color">{{pod_status}}</td>
+    <td>{{pod_pod_ip}}</td>
     <td v-on:click="action_clicked()">...</td>
     </tr>
     `,
@@ -59,6 +61,9 @@ Vue.component('pod-row', {
         },
         pod_status_color: function() {
             return this.getStatusColor();
+        },
+        pod_pod_ip: function() {
+            return this.row.status.podIP;
         }
     },
     methods: {
@@ -77,9 +82,17 @@ Vue.component('pod-row', {
         },
         action_clicked: function() {
             console.log("Clicked : " + this.pod_name);
+            //var logVal = window.client.api.v1.namespaces(this.pod_namespace).pods(this.pod_name).delete();
+            var logVal = window.client.api.v1.namespaces(this.pod_namespace).pods(this.pod_name).log.get({
+                qs: {
+                    tailLines: 10
+                }
+            });
+            console.log(logVal);
         }
     }
 });
+
 
 function populate_pod_list() {
     return window.client.api.v1.pods.get().then((res) => {

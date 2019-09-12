@@ -10,12 +10,12 @@
   "license": "MPL-2.0",
   "devDependencies": {
     "@vue/devtools": "^5.1.1",
-    "electron": "^5.0.6"
+    "electron": "^6.0.9",
+    "vue": "^2.6.10"
   },
   "dependencies": {
     "handlebars": "^4.1.2",
     "kubernetes-client": "^8.3.4",
-    "materialize-css": "^1.0.0-rc.2",
-    "vue": "^2.6.10"
+    "materialize-css": "^1.0.0"
   }
 }
