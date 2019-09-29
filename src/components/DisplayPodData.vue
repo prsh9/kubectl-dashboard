@@ -69,6 +69,9 @@ export default {
   created() {
     this.init();
   },
+  mounted() {
+    this.startRefresher();
+  },
   methods: {
     init: async function() {
       await this.stopWatch();
@@ -94,14 +97,16 @@ export default {
           console.log("Error (getPodData) " + err);
           vm.pod_data.status = false;
           vm.pod_data.message = err;
-          vm.pod_data.data = {};
+          vm.pod_data.data = {
+            items: {}
+          };
         }
       );
     },
     stopWatch: async function() {
       if (stream) {
-        stream.unpipe();
         stream.abort();
+        stream = null;
       }
     },
     startWatch: async function(rv) {
@@ -163,6 +168,9 @@ export default {
         }
         vm.$forceUpdate();
       });
+    },
+    startRefresher: function() {
+      setTimeout(() => this.init().then(this.startRefresher()), 5000);
     },
     pod_action: function(PodItem) {
       console.log(PodItem.metadata.name);
