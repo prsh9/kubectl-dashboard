@@ -50,6 +50,7 @@ export default {
         case "Unknown":
           return "indigo";
       }
+      return "yellow"
     },
     pod_pod_ip: function() {
       return this.row.status.podIP;

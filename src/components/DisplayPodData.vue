@@ -26,7 +26,7 @@ import PodRow from "./PodRow.vue";
 const kubeclient = require("kubernetes-client");
 const JSONStream = require("JSONStream");
 
-const client = new kubeclient.Client({ version: "1.13" });
+const client = new kubeclient.Client1_13();
 var stream = null;
 
 const myCommonFunctions = {
@@ -57,10 +57,12 @@ export default {
   computed: {
     orderedPodItems: function() {
       var sorted = [];
-      var podKeys = Object.keys(this.pod_data.data.items);
-      podKeys.sort().forEach(elem => {
-        sorted.push(this.pod_data.data.items[elem]);
-      });
+      if (this.pod_data.status) {
+        var podKeys = Object.keys(this.pod_data.data.items);
+        podKeys.sort().forEach(elem => {
+          sorted.push(this.pod_data.data.items[elem]);
+        });
+      }
       return sorted;
     }
   },
@@ -115,12 +117,14 @@ export default {
 
       var vm = this;
       jsonStream.on("data", async res => {
+        var podKey = "";
+        var pod_item = res.object;
         if (res.type === "ADDED") {
           // eslint-disable-next-line
-          var pod_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
+          pod_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
             res.object
           );
-          var podKey = myCommonFunctions.getKey(pod_item);
+          podKey = myCommonFunctions.getKey(pod_item);
           vm.$set(this.pod_data.data.items, podKey, pod_item);
           console.log(
             "new object : " +
@@ -130,10 +134,10 @@ export default {
           );
         } else if (res.type === "MODIFIED") {
           // eslint-disable-next-line
-          var pod_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
+          pod_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
             res.object
           );
-          var podKey = myCommonFunctions.getKey(pod_item);
+          podKey = myCommonFunctions.getKey(pod_item);
           vm.$set(this.pod_data.data.items, podKey, pod_item);
           console.log(
             "changed object : " +
@@ -143,10 +147,10 @@ export default {
           );
         } else if (res.type === "DELETED") {
           // eslint-disable-next-line
-          var pod_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
+          pod_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
             res.object
           );
-          var podKey = myCommonFunctions.getKey(pod_item);
+          podKey = myCommonFunctions.getKey(pod_item);
           vm.$delete(this.pod_data.data.items, podKey);
           console.log(
             "deleted object : " +
@@ -159,28 +163,6 @@ export default {
         }
         vm.$forceUpdate();
       });
-    },
-    getPodStatus: function(PodItem) {
-      var phase = PodItem.status.phase;
-      if (phase == "Failed" && PodItem.status.reason) {
-        phase = PodItem.status.reason;
-      }
-
-      return phase;
-    },
-    getPodStatusColor: function(PodItem) {
-      switch (PodItem.status.phase) {
-        case "Pending":
-          return "orange";
-        case "Running":
-          return "green";
-        case "Succeeded":
-          return "purple";
-        case "Failed":
-          return "red";
-        case "Unknown":
-          return "indigo";
-      }
     },
     pod_action: function(PodItem) {
       console.log(PodItem.metadata.name);
