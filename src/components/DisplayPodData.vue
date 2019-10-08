@@ -4,11 +4,11 @@
       <v-simple-table dense fixed-header>
         <thead>
           <tr>
-            <th v-for="header in tableHeaders" :key="header">{{header}}</th>
+            <th class="row-head-centered" v-for="header in tableHeaders" :key="header">{{header}}</th>
           </tr>
         </thead>
         <tbody>
-          <PodRow v-for="row in orderedPodItems" :key="row.metadata.uid" :row="row"></PodRow>
+          <PodRow v-for="row in orderedPodItems" :key="row.metadata.uid" :row="row" v-on:delete_pod="onDeletePod" v-on:view_log="onViewLog"></PodRow>
         </tbody>
       </v-simple-table>
     </div>
@@ -44,7 +44,7 @@ const myCommonFunctions = {
 export default {
   data() {
     return {
-      tableHeaders: ["NameSpace", "Name", "Status", "Pod IP", "Actions"],
+      tableHeaders: ["NameSpace", "Name", "Ready", "Status", "Pod IP", "Actions"],
       pod_data: {
         status: false,
         message: "Loading",
@@ -172,8 +172,14 @@ export default {
     startRefresher: function() {
       setTimeout(() => this.init().then(this.startRefresher()), 5000);
     },
-    pod_action: function(PodItem) {
-      console.log(PodItem.metadata.name);
+    onDeletePod: function(podNamespace, podName) {
+      client.api.v1.namespaces(podNamespace).pods(podName).delete();
+    },
+    onViewLog: function(podNamespace, podName) {
+      console.log("On View Logs for " + podNamespace + "." + podName);
+      this.$emit('view_log', podNamespace, podName);
+      // let log_response = ipcRenderer.sendSync('view-log', podNamespace, podName);
+      // console.log(log_response);
     }
   },
   components: {

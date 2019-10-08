@@ -2,12 +2,22 @@
   <tr>
     <td>{{pod_namespace}}</td>
     <td>{{pod_name}}</td>
-    <td>
+    <td>{{pod_container_status}}</td>
+    <td class="row-centered">
       <v-chip outlined ripple :color="pod_status_color">{{pod_status}}</v-chip>
     </td>
     <td>{{pod_pod_ip}}</td>
     <td>
-      <v-icon @click="pod_action()">mdi-menu</v-icon>
+      <v-menu left offset-y open-on-click>
+        <template v-slot:activator="{ on }">
+          <v-icon v-on="on">mdi-menu</v-icon>
+        </template>
+        <v-list dense>
+          <v-list-item v-for="(item, index) in actions" :key="index" @click="item.action()">
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </td>
   </tr>
 </template>
@@ -20,7 +30,18 @@ export default {
     }
   },
   data() {
-    return {};
+    return {
+      actions: [
+        {
+          title: "View Logs",
+          action: this.viewLogsAction
+        },
+        {
+          title: "Delete",
+          action: this.deleteAction
+        }
+      ]
+    };
   },
   computed: {
     pod_name: function() {
@@ -28,6 +49,18 @@ export default {
     },
     pod_namespace: function() {
       return this.row.metadata.namespace;
+    },
+    pod_container_status: function() {
+      var restartCount = 0;
+      var containerReady = 0;
+      var numContainer = this.row.spec.containers.length;
+      if (this.row.status.containerStatuses) {
+        this.row.status.containerStatuses.forEach(element => {
+          containerReady += element.ready ? 1 : 0;
+          restartCount += element.restartCount;
+        });
+      }
+      return containerReady + "/" + numContainer + "::" + restartCount;
     },
     pod_status: function() {
       var phase = this.row.status.phase;
@@ -50,7 +83,7 @@ export default {
         case "Unknown":
           return "indigo";
       }
-      return "yellow"
+      return "yellow";
     },
     pod_pod_ip: function() {
       return this.row.status.podIP;
@@ -59,7 +92,25 @@ export default {
   methods: {
     pod_action: function() {
       console.log(this.row.metadata.name);
+    },
+    deleteAction: function() {
+      console.log(
+        "Calling Delete Pods for " + this.pod_namespace + "." + this.pod_name
+      );
+      this.$emit('delete_pod', this.pod_namespace, this.pod_name);
+    },
+    viewLogsAction: function() {
+      console.log(
+        "Calling View Logs for " + this.pod_namespace + "." + this.pod_name
+      );
+      this.$emit('view_log', this.pod_namespace, this.pod_name);
     }
   }
 };
 </script>
+
+<style>
+.row-centered {
+  text-align: center;
+}
+</style>
