@@ -12,7 +12,9 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
-  "author": "PS",
+  "author": {
+    "name": "PS"
+  },
   "license": "MPL-2.0",
   "dependencies": {
     "@mdi/font": "^3.6.95",
