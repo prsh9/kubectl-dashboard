@@ -5,9 +5,16 @@ module.exports = {
         electronBuilder: {
             builderOptions: {
                 "appId": "com.example.app",
-                "artifactName": "${productName}-${version}.${ext}",
+                "artifactName": "${productName}-${version}-${os}.${ext}",
                 "mac": {
-                    "category": "public.app-category.developer-tools"
+                    "category": "public.app-category.developer-tools",
+                    "target": "zip"
+                },
+                "win": {
+                    "target": "zip"
+                },
+                "linux": {
+                    "target": "zip"
                 }
             },
             externals: ["kubernetes-client"]

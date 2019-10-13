@@ -1,0 +1,18 @@
+os: osx
+language: node_js
+node_js:
+  - 12.5
+install: yarn install
+script: yarn electron:build -mlw
+deploy:
+    provider: releases
+    skip_cleanup: true
+    api_key: $RELEASES_TOKEN
+    file:
+        - dist_electron/*.zip
+        - dist_electron/*.exe
+        - dist_electron/*.AppImage
+    file_glob: true
+    prerelease: true
+    overwrite: true
+    draft: true
