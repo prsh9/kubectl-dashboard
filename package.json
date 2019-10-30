@@ -1,6 +1,6 @@
 {
   "name": "kubectldashboard",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Dev Desktop Client for KubeCtl",
   "main": "background.js",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
-    "@mdi/font": "^3.6.95",
+    "@mdi/font": "^4.5.95",
     "JSONStream": "^1.3.5",
     "kubernetes-client": "^8.3.4",
     "roboto-fontface": "*",
@@ -25,16 +25,16 @@
     "vuetify": "^2.0.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-eslint": "^3.11.0",
-    "@vue/cli-service": "^3.11.0",
+    "@vue/cli-plugin-eslint": "^4.0.5",
+    "@vue/cli-service": "^4.0.5",
     "babel-eslint": "^10.0.1",
-    "electron": "^6.0.0",
+    "electron": "^7.0.0",
     "eslint": "^6.3.0",
     "eslint-plugin-vue": "^5.0.0",
     "sass": "^1.17.4",
-    "sass-loader": "^7.1.0",
+    "sass-loader": "^8.0.0",
     "vue-cli-plugin-electron-builder": "^1.4.0",
-    "vue-cli-plugin-vuetify": "^0.6.3",
+    "vue-cli-plugin-vuetify": "^1.1.1",
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.2.2"
   },
