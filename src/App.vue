@@ -8,9 +8,9 @@
     <v-content>
       <!-- Provides the application the proper gutter -->
       <v-container>
-        <v-tabs grow v-model="tab">
+        <v-tabs fixed-tabs v-model="tab">
           <v-tab>Pod Info</v-tab>
-          <v-tab v-for="item in logtabs" :key="item.index">{{item.title}}</v-tab>
+          <v-tab v-for="(item, index) in logtabs" :key="item.index"><v-spacer></v-spacer>{{item.title}}<v-spacer></v-spacer><v-btn class="text-right" icon outlined x-small @click="close(index)"><v-icon>mdi-close</v-icon></v-btn></v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item>
@@ -35,13 +35,22 @@ export default {
   data() {
     return {
       tab: null,
-      logtabs: []
+      logtabs: [],
+      index: 1
     };
+  },
+  created() {
+    this.index = 1;
   },
   methods: {
     onViewLog: function(podNamespace, podName) {
       console.log("Check Reached Here : " + podNamespace + "." + podName);
-      this.logtabs.push({index: this.logtabs.length, title: podName + " Logs", podNamespace: podNamespace, podName: podName});
+      this.logtabs.push({index: this.index, title: podName + " Logs", podNamespace: podNamespace, podName: podName});
+      this.index++;
+    },
+    close: function(item) {
+      // console.log("Closed Clicked for : " + this.logtabs[item].title);
+      this.logtabs.splice(item, 1);
     }
   },
   components: {
