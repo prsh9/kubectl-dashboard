@@ -47,6 +47,7 @@ export default {
       console.log("Check Reached Here : " + podNamespace + "." + podName);
       this.logtabs.push({index: this.index, title: podName + " Logs", podNamespace: podNamespace, podName: podName});
       this.index++;
+      this.tab = this.logtabs.length;
     },
     close: function(item) {
       // console.log("Closed Clicked for : " + this.logtabs[item].title);
