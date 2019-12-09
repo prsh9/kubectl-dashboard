@@ -6,18 +6,21 @@
           Logs for <b class="text-capitalize">{{ podNamespace }} - {{ podName }}</b>
         </h3>
         <v-layout row class="fab-horizontal">
+          <v-btn color="cyan" depressed fab x-small class="btn-margin" @click="clearConsole">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
           <v-btn color="cyan" depressed fab x-small class="btn-margin" @click="wrap = !wrap">
             <v-icon>{{wrap ? 'mdi-format-text-wrapping-wrap' : 'mdi-format-text-wrapping-overflow'}}</v-icon>
           </v-btn>
-          <v-btn color="cyan" depressed fab x-small class="btn-margin">
+          <v-btn color="cyan" depressed fab x-small class="btn-margin" @click="scrollBottom">
             <v-icon>mdi-format-vertical-align-bottom</v-icon>
           </v-btn>
         </v-layout>
       </v-card-title>
       <v-card class="overflow-y-auto" max-height="75vh" flat outlined>
-        <v-card-text>
+        <v-card-text id="logWindow" ref="logwindow" max-height="75vh">
           <pre v-if="!connected">{{errMessage}}</pre>
-          <pre v-else :class="[wrap ? 'my-text-wrap' : 'my-text-no-wrap']" v-for="(text, index) in logdata" :key="index">{{text}}</pre>
+          <pre v-else :class="[wrap ? 'my-text-wrap' : 'my-text-no-wrap']" v-for="(text, index) in logdata" :key="text + '=' +index">{{text}}</pre>
         </v-card-text>
       </v-card>
     </v-card>
@@ -83,12 +86,25 @@ export default {
         stream.abort();
         stream = null;
       }
+      this.clearConsole();
+    },
+    clearConsole: function() {
       this.logdata.length = 0;
+      this.$forceUpdate();
+    },
+    scrollBottom: function() {
+      this.$refs.logwindow.lastChild.scrollIntoView();
     },
     testFunction: function() {
+      this.connected = true;
       console.log("Adding");
       var s = this.logdata[this.logdata.length - 1];
-      this.logdata.push("Text " + ((s) ? s : ""));
+      for (let index = 0; index < 10; index++) {
+        this.logdata.push("Text " + ((s) ? s : ""));
+        this.$nextTick(function() {
+          this.scrollBottom();
+        })
+      }
     }
   }
 };

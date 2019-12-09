@@ -1,12 +1,27 @@
 <template>
   <tr>
-    <td>{{pod_namespace}}</td>
-    <td>{{pod_name}}</td>
-    <td>{{pod_container_status}}</td>
-    <td class="row-centered">
-      <v-chip outlined ripple :color="pod_status_color">{{pod_status}}</v-chip>
+    <td>{{ pod_namespace }}</td>
+    <td>{{ pod_name }}</td>
+    <td>
+      <div class="min_w_h">
+        <v-progress-linear
+          :stream="pod_status_actual != 'Failed'"
+          rounded
+          :color="pod_status_color + ' lighten-3'"
+          height="20px"
+          :buffer-value="ready_container_percent"
+          :value="ready_container_percent">
+          <v-spacer></v-spacer>{{ num_ready_containers }}/{{ num_comtainers }}<v-spacer></v-spacer>
+          <v-avatar tile :color="container_restarts > 0 ? 'red accent-1' : 'teal lighten-4'" size="20">{{
+            container_restarts
+          }}</v-avatar>
+        </v-progress-linear>
+      </div>
     </td>
-    <td>{{pod_pod_ip}}</td>
+    <td class="row-centered">
+      <v-chip outlined ripple :color="pod_status_color">{{ pod_status_message }}</v-chip>
+    </td>
+    <td>{{ pod_pod_ip }}</td>
     <td>
       <v-menu left offset-y open-on-click>
         <template v-slot:activator="{ on }">
@@ -21,7 +36,7 @@
     </td>
   </tr>
 </template>
-        
+
 <script>
 export default {
   props: {
@@ -50,20 +65,35 @@ export default {
     pod_namespace: function() {
       return this.row.metadata.namespace;
     },
-    pod_container_status: function() {
-      var restartCount = 0;
+    num_comtainers: function() {
+      return this.row.spec.containers.length;
+    },
+    num_ready_containers: function() {
       var containerReady = 0;
-      var numContainer = this.row.spec.containers.length;
       if (this.row.status.containerStatuses) {
         this.row.status.containerStatuses.forEach(element => {
           containerReady += element.ready ? 1 : 0;
+        });
+      }
+      return containerReady;
+    },
+    ready_container_percent: function() {
+      return (this.num_ready_containers / this.num_comtainers) * 100;
+    },
+    container_restarts: function() {
+      var restartCount = 0;
+      if (this.row.status.containerStatuses) {
+        this.row.status.containerStatuses.forEach(element => {
           restartCount += element.restartCount;
         });
       }
-      return containerReady + "/" + numContainer + "::" + restartCount;
+      return restartCount;
     },
-    pod_status: function() {
-      var phase = this.row.status.phase;
+    pod_status_actual: function() {
+      return this.row.status.phase;
+    },
+    pod_status_message: function() {
+      var phase = this.pod_status_actual;
       if (phase == "Failed" && this.row.status.reason) {
         phase = this.row.status.reason;
       }
@@ -71,7 +101,7 @@ export default {
       return phase;
     },
     pod_status_color: function() {
-      switch (this.row.status.phase) {
+      switch (this.pod_status_actual) {
         case "Pending":
           return "orange";
         case "Running":
@@ -90,20 +120,17 @@ export default {
     }
   },
   methods: {
-    pod_action: function() {
-      console.log(this.row.metadata.name);
-    },
     deleteAction: function() {
       console.log(
         "Calling Delete Pods for " + this.pod_namespace + "." + this.pod_name
       );
-      this.$emit('delete_pod', this.pod_namespace, this.pod_name);
+      this.$emit("delete_pod", this.pod_namespace, this.pod_name);
     },
     viewLogsAction: function() {
       console.log(
         "Calling View Logs for " + this.pod_namespace + "." + this.pod_name
       );
-      this.$emit('view_log', this.pod_namespace, this.pod_name);
+      this.$emit("view_log", this.pod_namespace, this.pod_name);
     }
   }
 };
@@ -112,5 +139,9 @@ export default {
 <style>
 .row-centered {
   text-align: center;
+}
+.min_w_h {
+  min-width: 100px;
+  width: fit-content;
 }
 </style>

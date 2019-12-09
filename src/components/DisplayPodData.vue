@@ -170,7 +170,12 @@ export default {
       });
     },
     startRefresher: function() {
-      setTimeout(() => this.init().then(this.startRefresher()), 5000);
+      setTimeout(this.performRefresh, 7000);
+    },
+    performRefresh: function() {
+      this.init().then(() => {
+        this.startRefresher();
+      });
     },
     onDeletePod: function(podNamespace, podName) {
       client.api.v1.namespaces(podNamespace).pods(podName).delete();
@@ -178,8 +183,6 @@ export default {
     onViewLog: function(podNamespace, podName) {
       console.log("On View Logs for " + podNamespace + "." + podName);
       this.$emit('view_log', podNamespace, podName);
-      // let log_response = ipcRenderer.sendSync('view-log', podNamespace, podName);
-      // console.log(log_response);
     }
   },
   components: {
