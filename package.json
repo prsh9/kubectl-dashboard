@@ -1,6 +1,6 @@
 {
   "name": "kubectldashboard",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Dev Desktop Client for KubeCtl",
   "main": "background.js",
   "scripts": {
