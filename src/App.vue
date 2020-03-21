@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app hide-on-scroll color="teal darken-2">
+    <v-app-bar app color="teal darken-2">
       <TitleBar />
     </v-app-bar>
 

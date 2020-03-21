@@ -12,9 +12,8 @@
           :buffer-value="ready_container_percent"
           :value="ready_container_percent">
           <v-spacer></v-spacer>{{ num_ready_containers }}/{{ num_comtainers }}<v-spacer></v-spacer>
-          <v-avatar tile :color="container_restarts > 0 ? 'red accent-1' : 'teal lighten-4'" size="20">{{
-            container_restarts
-          }}</v-avatar>
+          <v-avatar circle :color="container_restarts > 0 ? 'red accent-1' : 'teal lighten-4'" size="20">
+            <span class="white--text">{{container_restarts}}</span></v-avatar>
         </v-progress-linear>
       </div>
     </td>
