@@ -2,6 +2,7 @@ os: osx
 language: node_js
 node_js:
   - 12.5
+if: branch = master AND commit_message =~ /^Release/
 install: yarn install
 script: yarn electron:build -mlw
 deploy:
