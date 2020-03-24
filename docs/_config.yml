@@ -1,4 +1,4 @@
 theme: jekyll-theme-cayman
 title: "Kube Dashboard"
 description: "Dev Dashboard for Kubernetes"
-show_downloads: "true"
+show_downloads: "false"
