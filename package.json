@@ -23,6 +23,7 @@
     "kubernetes-client": "^8.3.4",
     "roboto-fontface": "*",
     "vue": "^2.6.10",
+    "vue-router": "^3.1.6",
     "vuetify": "^2.0.0"
   },
   "devDependencies": {
