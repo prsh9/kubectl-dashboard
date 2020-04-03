@@ -6,7 +6,7 @@
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" clipped app temporary>
       <v-list nav dense>
-        <v-list-item-group v-model="group" mandatory active-class="deep-purple--text text--accent-4">
+        <v-list-item-group mandatory active-class="deep-purple--text text--accent-4">
           <v-list-item v-for="item in menuItems" :key="item.title" :to="item.link">
             <v-list-item-icon>
               <v-icon>mdi-{{ item.icon}}</v-icon>
@@ -31,13 +31,13 @@
 import Home from "./components/Home.vue";
 import Setting from "./components/Setting.vue";
 
-import VueRouter from 'vue-router'
+import VueRouter from "vue-router";
 const router = new VueRouter({
   routes: [
-    { path: '/', component: Home },
-    { path: '/setting', component: Setting },
+    { path: "/", component: Home },
+    { path: "/setting", component: Setting }
   ]
-})
+});
 
 export default {
   name: "App",
@@ -45,13 +45,9 @@ export default {
   data() {
     return {
       drawer: null,
-      group: 0,
-      // tab: null,
-      // logtabs: [],
-      // index: 1,
       menuItems: [
-          {icon: 'home', title: 'Home', link: '/'},
-          {icon: 'settings', title: 'Settings', link: '/setting'}
+        { icon: "home", title: "Home", link: "/" },
+        { icon: "settings", title: "Settings", link: "/setting" }
       ]
     };
   },
