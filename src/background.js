@@ -1,5 +1,6 @@
 'use strict'
 
+import path from 'path'
 import { app, protocol, BrowserWindow } from 'electron'
 import {
   createProtocol,
@@ -22,6 +23,7 @@ function createWindow () {
     width: 1024,
     height: 768,
     center: true,
+    icon: path.join(__static, 'icon.png'),
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,

@@ -10,7 +10,8 @@
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
+    "postuninstall": "electron-builder install-app-deps",
+    "electron:generate-icons": "electron-icon-builder --input=./public/icon.png --output=build --flatten"
   },
   "author": {
     "name": "PS"
@@ -22,13 +23,16 @@
     "kubernetes-client": "^8.3.4",
     "roboto-fontface": "*",
     "vue": "^2.6.10",
-    "vuetify": "^2.0.0"
+    "vue-router": "^3.1.6",
+    "vuetify": "^2.0.0",
+    "vuex": "^3.1.3"
   },
   "devDependencies": {
     "@vue/cli-plugin-eslint": "^4.0.5",
     "@vue/cli-service": "^4.0.5",
     "babel-eslint": "^10.0.1",
     "electron": "^7.0.0",
+    "electron-icon-builder": "^1.0.2",
     "eslint": "^6.3.0",
     "eslint-plugin-vue": "^6.0.1",
     "sass": "^1.17.4",

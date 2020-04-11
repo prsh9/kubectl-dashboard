@@ -120,10 +120,7 @@ export default {
   },
   methods: {
     deleteAction: function() {
-      console.log(
-        "Calling Delete Pods for " + this.pod_namespace + "." + this.pod_name
-      );
-      this.$emit("delete_pod", this.pod_namespace, this.pod_name);
+      this.$store.dispatch('deletePod', this.row.metadata.uid);
     },
     viewLogsAction: function() {
       console.log(
