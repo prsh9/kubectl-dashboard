@@ -10,10 +10,18 @@
           :color="pod_status_color + ' lighten-3'"
           height="20px"
           :buffer-value="ready_container_percent"
-          :value="ready_container_percent">
-          <v-spacer></v-spacer>{{ num_ready_containers }}/{{ num_comtainers }}<v-spacer></v-spacer>
-          <v-avatar circle :color="container_restarts > 0 ? 'red accent-1' : 'teal lighten-4'" size="20">
-            <span class="white--text">{{container_restarts}}</span></v-avatar>
+          :value="ready_container_percent"
+        >
+          <v-spacer></v-spacer>
+          {{ num_ready_containers }}/{{ num_comtainers }}
+          <v-spacer></v-spacer>
+            <v-avatar
+            circle
+            :color="container_restarts > 0 ? 'red accent-1' : 'teal lighten-4'"
+            size="20"
+          >
+            <span class="white--text">{{container_restarts}}</span>
+          </v-avatar>
         </v-progress-linear>
       </div>
     </td>
@@ -93,8 +101,53 @@ export default {
     },
     pod_status_message: function() {
       var phase = this.pod_status_actual;
-      if (phase == "Failed" && this.row.status.reason) {
+      if (this.row.status.reason) {
         phase = this.row.status.reason;
+        return phase;
+      }
+
+      if (phase === "Pending") {
+        var status_item = this.row.status;
+        if (status_item.initContainerStatuses) {
+          var numInit = status_item.initContainerStatuses.length;
+          var startInit = 0;
+          for (const item of status_item.initContainerStatuses) {
+            if (!item.ready) {
+              phase = "Init:" + startInit;
+              if (item.state) {
+                if (item.state.waiting && item.state.waiting.reason) {
+                  return phase + "(" + item.state.waiting.reason + ")";
+                }
+                if (item.state.terminated) {
+                  return "Terminating";
+                }
+              }
+              return phase + "/" + numInit;
+            }
+            startInit++;
+          }
+        }
+
+        if (status_item.containerStatuses) {
+          for (const item of status_item.containerStatuses) {
+            if (!item.ready) {
+              if (
+                item.state &&
+                item.state.waiting &&
+                item.state.waiting.reason
+              ) {
+                return item.state.waiting.reason;
+              }
+              if (item.state && item.state.terminated) {
+                phase = "Terminating";
+                if (item.state.terminated.reason) {
+                  phase = phase + "(" + item.state.terminated.reason + ")";
+                }
+                return phase;
+              }
+            }
+          }
+        }
       }
 
       return phase;
@@ -120,7 +173,7 @@ export default {
   },
   methods: {
     deleteAction: function() {
-      this.$store.dispatch('deletePod', this.row.metadata.uid);
+      this.$store.dispatch("deletePod", this.row.metadata.uid);
     },
     viewLogsAction: function() {
       console.log(
