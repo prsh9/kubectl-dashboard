@@ -18,7 +18,7 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
-    "@mdi/font": "^4.5.95",
+    "@mdi/font": "^5.0.45",
     "JSONStream": "^1.3.5",
     "kubernetes-client": "^8.3.4",
     "roboto-fontface": "*",
@@ -31,7 +31,7 @@
     "@vue/cli-plugin-eslint": "^4.0.5",
     "@vue/cli-service": "^4.0.5",
     "babel-eslint": "^10.0.1",
-    "electron": "^7.0.0",
+    "electron": "^8.2.2",
     "electron-icon-builder": "^1.0.2",
     "eslint": "^6.3.0",
     "eslint-plugin-vue": "^6.0.1",
