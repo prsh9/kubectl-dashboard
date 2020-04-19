@@ -40,11 +40,22 @@
           </v-list-item>
         </v-list>
       </v-menu>
+      <v-dialog scrollable persistent v-model="dialog">
+        <!-- v-if is necessary to mount every time dialog is opened -->
+        <DescribeResource
+          v-if="dialog"
+          resourceType="pod"
+          :resourceUID="row.metadata.uid"
+          @close="dialog = false"
+        ></DescribeResource>
+      </v-dialog>
     </td>
   </tr>
 </template>
 
 <script>
+import DescribeResource from "./DescribeResource.vue";
+
 export default {
   props: {
     row: {
@@ -53,7 +64,12 @@ export default {
   },
   data() {
     return {
+      dialog: false,
       actions: [
+        {
+          title: "Describe",
+          action: this.describeAction
+        },
         {
           title: "View Logs",
           action: this.viewLogsAction
@@ -180,7 +196,13 @@ export default {
         "Calling View Logs for " + this.pod_namespace + "." + this.pod_name
       );
       this.$emit("view_log", this.pod_namespace, this.pod_name);
+    },
+    describeAction: function() {
+      this.dialog = true;
     }
+  },
+  components: {
+    DescribeResource
   }
 };
 </script>

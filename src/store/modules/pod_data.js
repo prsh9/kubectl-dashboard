@@ -45,6 +45,9 @@ const getters = {
       });
     }
     return sorted;
+  },
+  getPodData: (state) => (podUid) => {
+    return state.pod_data.data.items[podUid];
   }
 }
 
