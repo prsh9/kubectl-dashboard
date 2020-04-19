@@ -6,7 +6,6 @@
       <div class="min_w_h">
         <v-progress-linear
           :stream="pod_status_actual != 'Failed'"
-          rounded
           :color="pod_status_color + ' lighten-3'"
           height="20px"
           :buffer-value="ready_container_percent"
@@ -15,14 +14,16 @@
           <v-spacer></v-spacer>
           {{ num_ready_containers }}/{{ num_comtainers }}
           <v-spacer></v-spacer>
-            <v-avatar
-            circle
-            :color="container_restarts > 0 ? 'red accent-1' : 'teal lighten-4'"
-            size="20"
-          >
-            <span class="white--text">{{container_restarts}}</span>
-          </v-avatar>
         </v-progress-linear>
+        <v-avatar
+          right
+          tile
+          absolute
+          :color="container_restarts > 0 ? (container_restarts > 1 ? 'red accent-1' : 'orange lighten-3' ) : 'teal lighten-4'"
+          size="20"
+        >
+          <span class="white--text">{{container_restarts}}</span>
+        </v-avatar>
       </div>
     </td>
     <td class="row-centered">
@@ -207,12 +208,14 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .row-centered {
   text-align: center;
 }
 .min_w_h {
-  min-width: 100px;
+  min-width: 120px;
   width: fit-content;
+  display: flex;
+  flex-direction: row;
 }
 </style>

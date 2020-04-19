@@ -7,7 +7,6 @@ function getKey(podItem) {
   return podItem.metadata.uid;
 }
 
-const JSONStream = require("JSONStream");
 var stream = null;
 
 // shape: [{ id, quantity }]
@@ -56,7 +55,7 @@ const actions = {
   stopPodWatch: function() {
     return new Promise((resolve) => {
       if (stream) {
-        stream.abort();
+        stream.destroy();
         stream = null;
       }
       resolve();
@@ -90,17 +89,13 @@ const actions = {
   },
   watchPodData: async function({ commit, state }) {
     var rv = state.pod_data.data.metadata.resourceVersion;
-    stream = await client.api.v1.pods.getStream({
+    stream = await client.api.v1.watch.pods.getObjectStream({
       qs: {
         resourceVersion: rv,
-        watch: 1
       }
     });
 
-    var jsonStream = JSONStream.parse();
-    stream.pipe(jsonStream);
-
-    jsonStream.on("data", async res => {
+    stream.on("data", res => {
       var pod_item = res.object;
       if (res.type === "ADDED") {
         // eslint-disable-next-line
