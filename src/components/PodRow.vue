@@ -1,12 +1,11 @@
 <template>
   <tr>
-    <td>{{ pod_namespace }}</td>
+    <td class="minimal_pad">{{ pod_namespace }}</td>
     <td>{{ pod_name }}</td>
-    <td>
+    <td class="minimal_pad">
       <div class="min_w_h">
         <v-progress-linear
           :stream="pod_status_actual != 'Failed'"
-          rounded
           :color="pod_status_color + ' lighten-3'"
           height="20px"
           :buffer-value="ready_container_percent"
@@ -15,17 +14,19 @@
           <v-spacer></v-spacer>
           {{ num_ready_containers }}/{{ num_comtainers }}
           <v-spacer></v-spacer>
-            <v-avatar
-            circle
-            :color="container_restarts > 0 ? 'red accent-1' : 'teal lighten-4'"
-            size="20"
-          >
-            <span class="white--text">{{container_restarts}}</span>
-          </v-avatar>
         </v-progress-linear>
+        <v-avatar
+          right
+          tile
+          absolute
+          :color="container_restarts > 0 ? (container_restarts > 1 ? 'red accent-1' : 'orange lighten-3' ) : 'teal lighten-4'"
+          size="20"
+        >
+          <span class="white--text">{{container_restarts}}</span>
+        </v-avatar>
       </div>
     </td>
-    <td class="row-centered">
+    <td class="status_css minimal_pad">
       <v-chip outlined ripple :color="pod_status_color">{{ pod_status_message }}</v-chip>
     </td>
     <td>{{ pod_pod_ip }}</td>
@@ -40,11 +41,22 @@
           </v-list-item>
         </v-list>
       </v-menu>
+      <v-dialog scrollable persistent v-model="dialog">
+        <!-- v-if is necessary to mount every time dialog is opened -->
+        <DescribeResource
+          v-if="dialog"
+          resourceType="pod"
+          :resourceUID="row.metadata.uid"
+          @close="dialog = false"
+        ></DescribeResource>
+      </v-dialog>
     </td>
   </tr>
 </template>
 
 <script>
+import DescribeResource from "./DescribeResource.vue";
+
 export default {
   props: {
     row: {
@@ -53,7 +65,12 @@ export default {
   },
   data() {
     return {
+      dialog: false,
       actions: [
+        {
+          title: "Describe",
+          action: this.describeAction
+        },
         {
           title: "View Logs",
           action: this.viewLogsAction
@@ -180,17 +197,29 @@ export default {
         "Calling View Logs for " + this.pod_namespace + "." + this.pod_name
       );
       this.$emit("view_log", this.pod_namespace, this.pod_name);
+    },
+    describeAction: function() {
+      this.dialog = true;
     }
+  },
+  components: {
+    DescribeResource
   }
 };
 </script>
 
-<style>
-.row-centered {
+<style scoped>
+.status_css {
   text-align: center;
+  min-width: 150px;
+}
+.minimal_pad {
+  padding: 1px;
 }
 .min_w_h {
-  min-width: 100px;
+  min-width: 130px;
   width: fit-content;
+  display: flex;
+  flex-direction: row;
 }
 </style>

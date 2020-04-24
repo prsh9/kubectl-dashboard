@@ -104,7 +104,7 @@ export default {
         stream = await client.api.v1.namespaces(this.podNamespace).pods(this.podName).log.getByteStream({
           qs: {
             container: this.currContainer,
-            tailLines: 10,
+            tailLines: 1000,
             follow: true
           }
         });

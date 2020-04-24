@@ -27,7 +27,7 @@ import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
-      tableHeaders: ["NameSpace", "Name", "Ready", "Status", "Pod IP", "Actions"],
+      tableHeaders: ["NameSpace", "Name", "Containers", "Status", "Pod IP", "Actions"],
     };
   },
   computed: {
@@ -50,8 +50,8 @@ export default {
         return this.$store.dispatch('fetchPodData')}).then(() => {
           return this.$store.dispatch('watchPodData');
         },
-        () => {
-          console.log("Error");
+        (rej) => {
+          console.log("Error" + rej);
         }
       );
       // console.log("Finish init")
