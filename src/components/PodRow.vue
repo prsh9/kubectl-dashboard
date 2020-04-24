@@ -1,8 +1,8 @@
 <template>
   <tr>
-    <td>{{ pod_namespace }}</td>
+    <td class="minimal_pad">{{ pod_namespace }}</td>
     <td>{{ pod_name }}</td>
-    <td>
+    <td class="minimal_pad">
       <div class="min_w_h">
         <v-progress-linear
           :stream="pod_status_actual != 'Failed'"
@@ -26,7 +26,7 @@
         </v-avatar>
       </div>
     </td>
-    <td class="row-centered">
+    <td class="status_css minimal_pad">
       <v-chip outlined ripple :color="pod_status_color">{{ pod_status_message }}</v-chip>
     </td>
     <td>{{ pod_pod_ip }}</td>
@@ -209,11 +209,15 @@ export default {
 </script>
 
 <style scoped>
-.row-centered {
+.status_css {
   text-align: center;
+  min-width: 150px;
+}
+.minimal_pad {
+  padding: 1px;
 }
 .min_w_h {
-  min-width: 120px;
+  min-width: 130px;
   width: fit-content;
   display: flex;
   flex-direction: row;
