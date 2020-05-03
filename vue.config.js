@@ -4,16 +4,18 @@ module.exports = {
     pluginOptions: {
         electronBuilder: {
             builderOptions: {
-                "appId": "com.example.app",
-                "artifactName": "${productName}-${version}-${os}.${ext}",
+                "appId": "io.prsh9.dev",
+                "productName": "Kube Dev Dashboard",
+                "artifactName": "${name}-${version}-${os}.${ext}",
                 "mac": {
                     "category": "public.app-category.developer-tools",
-                    "target": "zip"
+                    "target": "dmg"
                 },
                 "win": {
-                    "target": "zip"
+                    "target": "nsis"
                 },
                 "linux": {
+                    "category": "Development",
                     "target": "zip"
                 }
             },
