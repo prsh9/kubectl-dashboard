@@ -7,6 +7,9 @@ Features :
 - Monitor the running pods 
 - Get pod details like Pod IP, number of containers running, etc
 - View logs of pod containers
+- Describe Pod Details
+
+Visit Additional [Docs Here](docs/README.md)
 
 ## Contributing
 We encourage you to contribute to KubeCtl-Dashboard.
