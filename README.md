@@ -1,4 +1,4 @@
-# Kube Dashboard
+# Kube Dev Dashboard
 Desktop Client for Kubernetes
 
 Monitor your kubernetes setup and perform actions right from a single window easily
@@ -12,7 +12,7 @@ Features :
 Visit Additional [Docs Here](docs/README.md)
 
 ## Contributing
-We encourage you to contribute to KubeCtl-Dashboard.
+We encourage you to contribute to Kube Dev Dashboard.
 Check the [Contribution Guidelines](CONTRIBUTING.md)
 
 ## Getting Started

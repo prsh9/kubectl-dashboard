@@ -21,30 +21,36 @@ return data;
 }
 
 async function watch(data) {
+  
   var rv = data.body.metadata.resourceVersion;
-  var stream = await client.api.v1.pods.getStream({
-    qs: {
-      resourceVersion: rv,
-      watch: 1
-    }
-  });
 
-  var s = JSONStream.parse()
-  stream.pipe(s);
+  var stream = await client.api.v1.watch.pods.getObjectStream(//{
+  // var stream = await client.api.v1.pods.getStream({
+    // qs: {
+      // resourceVersion: rv,
+      // watch: 1
+    // }
+  //});
+  );
+
+  // console.log(stream);
+  // var s = JSONStream.parse()
+  // stream.pipe(s);
 
   var i = 0;
-  s.on('data', object => {
+  stream.on('data', object => {
     i++
     console.log('Log event:', object);
     console.log(i);
     if(i == 2) {
-      stream.abort();
+      // stream.abort();
+      stream.destroy();
     }
   })
 }
 
 var d = main()
 d.then(res => {
-  console.log(res);
+  // console.log(res);
   watch(res);
 })

@@ -13,6 +13,7 @@ deploy:
         - dist_electron/*.zip
         - dist_electron/*.exe
         - dist_electron/*.AppImage
+        - dist_electron/*.dmg
     file_glob: true
     prerelease: true
     overwrite: true

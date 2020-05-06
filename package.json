@@ -1,5 +1,5 @@
 {
-  "name": "kubectldashboard",
+  "name": "kube-dev-dashboard",
   "version": "0.6.0",
   "description": "Dev Desktop Client for KubeCtl",
   "main": "background.js",
@@ -42,6 +42,9 @@
     "vue-cli-plugin-vuetify": "^2.0.2",
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.2.2"
+  },
+  "resolutions": {
+    "vue-cli-plugin-electron-builder/electron-builder": "^22.2.0"
   },
   "eslintConfig": {
     "root": true,

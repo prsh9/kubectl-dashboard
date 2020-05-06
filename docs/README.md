@@ -1,5 +1,5 @@
 # Kube Dev Dashboard
-Desktop Client for Kubernetes for developers
+Desktop Client for Kubernetes for Developers
 
 Monitor your kubernetes setup and perform actions right from a single window, easily.
 
