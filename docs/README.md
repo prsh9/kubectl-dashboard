@@ -8,7 +8,7 @@ Monitor your kubernetes setup and perform actions right from a single window, ea
 - Get pod details like Pod IP, number of containers running, etc
 - View logs of pod containers
 - Describe Pod Details
-.. many more coming soon
+- .. many more coming soon
 
 ## Pod Info
 - Get Pod Info like Status, IP, Ready Containers

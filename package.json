@@ -43,9 +43,6 @@
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.2.2"
   },
-  "resolutions": {
-    "vue-cli-plugin-electron-builder/electron-builder": "^22.2.0"
-  },
   "eslintConfig": {
     "root": true,
     "env": {

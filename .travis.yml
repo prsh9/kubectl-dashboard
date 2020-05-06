@@ -4,11 +4,13 @@ node_js:
   - 12.5
 if: branch = master AND commit_message =~ /^Release/
 install: yarn install
-script: yarn electron:build -mlw
+script: 
+  - yarn electron:generate-icons
+  - yarn electron:build -mlw
 deploy:
     provider: releases
     skip_cleanup: true
-    api_key: $RELEASES_TOKEN
+    token: $RELEASES_TOKEN
     file:
         - dist_electron/*.zip
         - dist_electron/*.exe
