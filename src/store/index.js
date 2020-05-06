@@ -8,7 +8,10 @@ const debug = process.env.NODE_ENV !== 'production'
 
 export default new Vuex.Store({
   modules: {
-    pod_data,
+    podData: {
+      namespaced: true,
+      ...pod_data
+    }
   },
   strict: debug
 })

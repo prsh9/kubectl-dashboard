@@ -22,7 +22,9 @@
         
 <script>
 import PodRow from "./PodRow.vue";
-import { mapGetters } from 'vuex'
+import { createNamespacedHelpers } from 'vuex'
+
+const { mapGetters } = createNamespacedHelpers('podData')
 
 export default {
   data() {
@@ -46,9 +48,9 @@ export default {
   methods: {
     init: async function() {
       // console.log("Start init")
-      await this.$store.dispatch('stopPodWatch').then(() => {
-        return this.$store.dispatch('fetchPodData')}).then(() => {
-          return this.$store.dispatch('watchPodData');
+      await this.$store.dispatch('podData/stopPodWatch').then(() => {
+        return this.$store.dispatch('podData/fetchPodData')}).then(() => {
+          return this.$store.dispatch('podData/watchPodData');
         },
         (rej) => {
           console.log("Error" + rej);
