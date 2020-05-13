@@ -2,6 +2,7 @@
   <div>
     <v-tabs fixed-tabs v-model="tab">
       <v-tab>Pod Info</v-tab>
+      <v-tab>Svc Info</v-tab>
       <v-tab v-for="(item, index) in logtabs" :key="item.index">
         <v-spacer></v-spacer>
         {{ item.title }}
@@ -15,6 +16,9 @@
       <v-tab-item>
         <DisplayPodData @view_log="onViewLog" />
       </v-tab-item>
+      <v-tab-item>
+        <DisplaySvcData />
+      </v-tab-item>
       <v-tab-item v-for="item in logtabs" :key="item.index">
         <ShowLog :podNamespace="item.podNamespace" :podName="item.podName" />
       </v-tab-item>
@@ -25,6 +29,7 @@
 <script>
 import DisplayPodData from "./DisplayPodData.vue";
 import ShowLog from "./ShowLog.vue";
+import DisplaySvcData from "./DisplaySvcData.vue";
 
 export default {
   name: "Home",
@@ -47,7 +52,7 @@ export default {
         podName: podName
       });
       this.index++;
-      this.tab = this.logtabs.length;
+      this.tab = this.logtabs.length + 1;
     },
     close: function(item) {
       this.logtabs.splice(item, 1);
@@ -55,7 +60,8 @@ export default {
   },
   components: {
     DisplayPodData,
-    ShowLog
+    ShowLog,
+    DisplaySvcData
   }
 };
 </script>

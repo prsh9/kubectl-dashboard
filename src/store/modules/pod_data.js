@@ -7,18 +7,24 @@ function getKey(podItem) {
   return podItem.metadata.uid;
 }
 
-var stream = null;
+var podStream = null;
 
 // shape: [{ id, quantity }]
 const state = {
     pod_data: {
-      data: { 
         metadata: null, 
         items: {} 
-      }
     },
     status: false,
     message: "Loading",
+    svc: {
+      status: false,
+      message: "Loading",
+      svc_data: {
+        metadata: null,
+        items: {}
+      }
+    }
 }
 
 // getters
@@ -32,7 +38,7 @@ const getters = {
   orderedPodItems: (state) => {
     var sorted = [];
     if (state.status) {
-      sorted = Object.values(state.pod_data.data.items);
+      sorted = Object.values(state.pod_data.items);
       sorted.sort(function(a, b) {
         if(a.metadata.namespace == b.metadata.namespace) {
           if(a.metadata.name == b.metadata.name) {
@@ -46,17 +52,42 @@ const getters = {
     return sorted;
   },
   getPodData: (state) => (podUid) => {
-    return state.pod_data.data.items[podUid];
-  }
+    return state.pod_data.items[podUid];
+  },
+  getSvcMessage: (state) => {
+    return state.svc.message;
+  },
+  getSvcStatus: (state) => {
+    return state.svc.status;
+  },
+  orderedSvcItems: (state) => {
+    var sorted = [];
+    if (state.svc.status) {
+      sorted = Object.values(state.svc.svc_data.items);
+      sorted.sort(function(a, b) {
+        if(a.metadata.namespace == b.metadata.namespace) {
+          if(a.metadata.name == b.metadata.name) {
+            return a.metadata.uid.localeCompare(b.metadata.uid);
+          }
+          return a.metadata.name.localeCompare(b.metadata.name);
+        }
+        return a.metadata.namespace.localeCompare(b.metadata.namespace);
+      });
+    }
+    return sorted;
+  },
+  getSvcData: (state) => (svcUid) => {
+    return state.svc.svc_data.items[svcUid];
+  },
 }
 
 // actions
 const actions = {
   stopPodWatch: function() {
     return new Promise((resolve) => {
-      if (stream) {
-        stream.destroy();
-        stream = null;
+      if (podStream) {
+        podStream.destroy();
+        podStream = null;
       }
       resolve();
     });
@@ -88,14 +119,14 @@ const actions = {
     });    
   },
   watchPodData: async function({ commit, state }) {
-    var rv = state.pod_data.data.metadata.resourceVersion;
-    stream = await client.api.v1.watch.pods.getObjectStream({
+    var rv = state.pod_data.metadata.resourceVersion;
+    podStream = await client.api.v1.watch.pods.getObjectStream({
       qs: {
         resourceVersion: rv,
       }
     });
 
-    stream.on("data", res => {
+    podStream.on("data", res => {
       var pod_item = res.object;
       if (res.type === "ADDED") {
         // eslint-disable-next-line
@@ -124,30 +155,58 @@ const actions = {
     });
   },
   deletePod: function({ state }, pod_uid) {
-    var podToRemove = state.pod_data.data.items[pod_uid];
+    var podToRemove = state.pod_data.items[pod_uid];
     if(podToRemove) {
       var namespace = podToRemove.metadata.namespace;
       var name = podToRemove.metadata.name;
       client.api.v1.namespaces(namespace).pods(name).delete();
     }
-  }
+  },
+  fetchSvcData: function({ commit }) {
+    return new Promise((resolve, reject) => {
+      client.api.v1.services.get().then(
+        res => {
+          var svcData = {
+            items: {} 
+          };
+          svcData.metadata = res.body.metadata; 
+          for (var item in res.body.items) {
+            var itemdata = res.body.items[item];
+            var objKey = getKey(itemdata);
+  
+            svcData.items[objKey] = itemdata;
+          }
+          
+          commit('setStatusAndSvcData', {connStatus: true, message: "Success", svcData: svcData});
+          resolve();
+        },
+        err => {
+          console.log("Error (getSvcData) " + err);
+          commit('setStatusAndSvcData', { connStatus: false, message: err , svcData: { metadata: null, items: {} }});
+          reject();
+        }
+      );
+    });    
+  },
 }
 
 // mutations
 const mutations = {
   setStatusAndPodData (state, { podConnStatus, message, podData }) {
-      state.status = podConnStatus
+      state.status = podConnStatus;
       state.message = message;
-      Vue.set(state.pod_data, 'data', podData);
-  },
-  setPodData (state, podData) {
-    Vue.set(state.pod_data, 'data', podData);
+      Vue.set(state, 'pod_data', podData);
   },
   setPodItem (state, podData) {
-    Vue.set(state.pod_data.data.items, getKey(podData), podData);
+    Vue.set(state.pod_data.items, getKey(podData), podData);
   },
   deletePodItem(state, podData) {
-    Vue.delete(state.pod_data.data.items, getKey(podData));
+    Vue.delete(state.pod_data.items, getKey(podData));
+  },
+  setStatusAndSvcData (state, { connStatus, message, svcData}) {
+    state.svc.status = connStatus;
+    state.svc.message = message;
+    Vue.set(state.svc, 'svc_data', svcData);
   }
 }
 
