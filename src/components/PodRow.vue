@@ -190,7 +190,7 @@ export default {
   },
   methods: {
     deleteAction: function() {
-      this.$store.dispatch("deletePod", this.row.metadata.uid);
+      this.$store.dispatch("podData/deletePod", this.row.metadata.uid);
     },
     viewLogsAction: function() {
       console.log(
