@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title class="headline text-capitalize">Describe {{resourceType}} {{ resourceName }}</v-card-title>
+    <v-card-title class="headline text-capitalize">Describe {{ resourceType }} {{ resourceName }}</v-card-title>
     <v-divider></v-divider>
     <v-card-text class="overflow-auto text-no-wrap">
       <v-progress-circular indeterminate v-if="loading"></v-progress-circular>
@@ -17,6 +17,7 @@
 
 <script>
 import ObjectView from "./ObjectView.vue";
+import { capitalCase } from 'capital-case';
 
 export default {
   props: {
@@ -46,7 +47,7 @@ export default {
   },
   methods: {
     loadData: function() {
-      this.resourceData = this.$store.getters['podData/getPodData'](this.resourceUID);
+      this.resourceData = this.$store.getters['podData/get' + capitalCase(this.resourceType) + 'Data'](this.resourceUID);
       this.loading = false;
     }
   },
