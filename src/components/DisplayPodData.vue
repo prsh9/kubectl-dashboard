@@ -30,6 +30,7 @@ export default {
   data() {
     return {
       tableHeaders: ["NameSpace", "Name", "Containers", "Status", "Pod IP", "Actions"],
+      refresh: false
     };
   },
   computed: {
@@ -44,6 +45,10 @@ export default {
   },
   mounted() {
     this.startRefresher();
+    this.refresh = true;
+  },
+  beforeDestroy() {
+    this.refresh = false;
   },
   methods: {
     init: async function() {
@@ -65,8 +70,10 @@ export default {
     performRefresh: function() {
       // console.log("Start Refresh")
       this.init().then(() => {
-        // console.log("Restarting Refresh")
-        this.startRefresher();
+        if(this.refresh) {
+          // console.log("Restarting Refresh")
+          this.startRefresher();
+        }
       });
       // console.log("Finish Refresh")
     },

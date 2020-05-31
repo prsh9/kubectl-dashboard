@@ -3,6 +3,16 @@ import Vue from 'vue';
 const kubeclient = require("kubernetes-client");
 const client = new kubeclient.Client1_13();
 
+function kubeDataSortComparison(a, b) {
+  if(a.metadata.namespace == b.metadata.namespace) {
+    if(a.metadata.name == b.metadata.name) {
+      return a.metadata.uid.localeCompare(b.metadata.uid);
+    }
+    return a.metadata.name.localeCompare(b.metadata.name);
+  }
+  return a.metadata.namespace.localeCompare(b.metadata.namespace);
+}
+
 function getKey(podItem) {
   return podItem.metadata.uid;
 }
@@ -11,20 +21,16 @@ var podStream = null;
 
 // shape: [{ id, quantity }]
 const state = {
-    pod_data: {
-        metadata: null, 
-        items: {} 
-    },
-    status: false,
-    message: "Loading",
-    svc: {
-      status: false,
-      message: "Loading",
-      svc_data: {
-        metadata: null,
-        items: {}
-      }
-    }
+  status: false,
+  message: "Loading",
+  pod_data: {
+      metadata: null, 
+      items: {} 
+  },  
+  svc_data: {
+    metadata: null,
+    items: {}
+  }
 }
 
 // getters
@@ -39,45 +45,23 @@ const getters = {
     var sorted = [];
     if (state.status) {
       sorted = Object.values(state.pod_data.items);
-      sorted.sort(function(a, b) {
-        if(a.metadata.namespace == b.metadata.namespace) {
-          if(a.metadata.name == b.metadata.name) {
-            return a.metadata.uid.localeCompare(b.metadata.uid);
-          }
-          return a.metadata.name.localeCompare(b.metadata.name);
-        }
-        return a.metadata.namespace.localeCompare(b.metadata.namespace);
-      });
+      sorted.sort(kubeDataSortComparison);
     }
     return sorted;
   },
   getPodData: (state) => (podUid) => {
     return state.pod_data.items[podUid];
   },
-  getSvcMessage: (state) => {
-    return state.svc.message;
-  },
-  getSvcStatus: (state) => {
-    return state.svc.status;
-  },
   orderedSvcItems: (state) => {
     var sorted = [];
-    if (state.svc.status) {
-      sorted = Object.values(state.svc.svc_data.items);
-      sorted.sort(function(a, b) {
-        if(a.metadata.namespace == b.metadata.namespace) {
-          if(a.metadata.name == b.metadata.name) {
-            return a.metadata.uid.localeCompare(b.metadata.uid);
-          }
-          return a.metadata.name.localeCompare(b.metadata.name);
-        }
-        return a.metadata.namespace.localeCompare(b.metadata.namespace);
-      });
+    if (state.status) {
+      sorted = Object.values(state.svc_data.items);
+      sorted.sort(kubeDataSortComparison);
     }
     return sorted;
   },
   getSvcData: (state) => (svcUid) => {
-    return state.svc.svc_data.items[svcUid];
+    return state.svc_data.items[svcUid];
   },
 }
 
@@ -107,12 +91,12 @@ const actions = {
             podData.items[objKey] = itemdata;
           }
           
-          commit('setStatusAndPodData', {podConnStatus: true, message: "Success", podData: podData});
+          commit('setStatusAndPodData', {connStatus: true, message: "Success", podData: podData});
           resolve();
         },
         err => {
           console.log("Error (getPodData) " + err);
-          commit('setStatusAndPodData', { podConnStatus: false, message: err , podData: { metadata: null, items: {} }});
+          commit('setStatusAndPodData', { connStatus: false, message: err , podData: { metadata: null, items: {} }});
           reject();
         }
       );
@@ -192,8 +176,8 @@ const actions = {
 
 // mutations
 const mutations = {
-  setStatusAndPodData (state, { podConnStatus, message, podData }) {
-      state.status = podConnStatus;
+  setStatusAndPodData (state, { connStatus, message, podData }) {
+      state.status = connStatus;
       state.message = message;
       Vue.set(state, 'pod_data', podData);
   },
@@ -203,10 +187,10 @@ const mutations = {
   deletePodItem(state, podData) {
     Vue.delete(state.pod_data.items, getKey(podData));
   },
-  setStatusAndSvcData (state, { connStatus, message, svcData}) {
-    state.svc.status = connStatus;
-    state.svc.message = message;
-    Vue.set(state.svc, 'svc_data', svcData);
+  setStatusAndSvcData (state, { connStatus, message, svcData }) {
+    state.status = connStatus;
+    state.message = message;
+    Vue.set(state, 'svc_data', svcData);
   }
 }
 
