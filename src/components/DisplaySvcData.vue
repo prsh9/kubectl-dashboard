@@ -35,8 +35,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      message: 'getSvcMessage',
-      status: 'getSvcStatus',
+      message: 'getMessage',
+      status: 'getStatus',
       svcItems: 'orderedSvcItems'
     }),
   },
