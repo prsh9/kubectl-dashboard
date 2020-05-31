@@ -50,6 +50,10 @@ export default {
         {
           title: "Describe",
           action: this.describeAction
+        },
+        {
+          title: "Delete",
+          action: this.deleteAction
         }
       ]
     };
@@ -90,7 +94,10 @@ export default {
     },
     describeAction: function() {
       this.dialog = true;
-    }
+    },
+    deleteAction: function() {
+      this.$store.dispatch("podData/deleteSvc", this.row.metadata.uid);
+    },
   },
   components: {
     DescribeResource

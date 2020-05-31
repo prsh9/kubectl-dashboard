@@ -172,6 +172,14 @@ const actions = {
       );
     });    
   },
+  deleteSvc: function({ state }, svc_uid) {
+    var svcToRemove = state.svc_data.items[svc_uid];
+    if(svcToRemove) {
+      var namespace = svcToRemove.metadata.namespace;
+      var name = svcToRemove.metadata.name;
+      client.api.v1.namespaces(namespace).services(name).delete();
+    }
+  },
 }
 
 // mutations
