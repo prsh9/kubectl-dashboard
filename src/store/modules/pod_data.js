@@ -18,6 +18,7 @@ function getKey(podItem) {
 }
 
 var podStream = null;
+var svcStream = null;
 
 // shape: [{ id, quantity }]
 const state = {
@@ -172,6 +173,59 @@ const actions = {
       );
     });    
   },
+  deleteSvc: function({ state }, svc_uid) {
+    var svcToRemove = state.svc_data.items[svc_uid];
+    if(svcToRemove) {
+      var namespace = svcToRemove.metadata.namespace;
+      var name = svcToRemove.metadata.name;
+      client.api.v1.namespaces(namespace).services(name).delete();
+    }
+  },
+  stopSvcWatch: function() {
+    return new Promise((resolve) => {
+      if (svcStream) {
+        svcStream.destroy();
+        svcStream = null;
+      }
+      resolve();
+    });
+  },
+  watchSvcData: async function({ commit, state }) {
+    var rv = state.svc_data.metadata.resourceVersion;
+    svcStream = await client.api.v1.watch.services.getObjectStream({
+      qs: {
+        resourceVersion: rv,
+      }
+    });
+
+    svcStream.on("data", res => {
+      var svc_item = res.object;
+      if (res.type === "ADDED") {
+        // eslint-disable-next-line
+        svc_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
+          res.object
+        );
+        commit('setSvcItem', svc_item);
+        console.log("new svc : " + svc_item.metadata.name + " : " + svc_item.metadata.uid);
+      } else if (res.type === "MODIFIED") {
+        // eslint-disable-next-line
+        svc_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
+          res.object
+        );
+        commit('setSvcItem', svc_item);
+        console.log("changed svc : " + svc_item.metadata.name + " : " + svc_item.metadata.uid);
+      } else if (res.type === "DELETED") {
+        // eslint-disable-next-line
+        svc_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
+          res.object
+        );
+        commit('deleteSvcItem', svc_item);
+        console.log("deleted svc : " + svc_item.metadata.name + " : " + svc_item.metadata.uid);
+      } else {
+        console.error("unknown type: " + JSON.stringify(res));
+      }
+    });
+  },
 }
 
 // mutations
@@ -191,7 +245,13 @@ const mutations = {
     state.status = connStatus;
     state.message = message;
     Vue.set(state, 'svc_data', svcData);
-  }
+  },
+  setSvcItem (state, svcData) {
+    Vue.set(state.svc_data.items, getKey(svcData), svcData);
+  },
+  deleteSvcItem(state, svcData) {
+    Vue.delete(state.svc_data.items, getKey(svcData));
+  },
 }
 
 export default {

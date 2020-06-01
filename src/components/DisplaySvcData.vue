@@ -53,7 +53,15 @@ export default {
   methods: {
     init: async function() {
       // console.log("Start init")
-      await this.$store.dispatch('podData/fetchSvcData')
+      await this.$store.dispatch('podData/stopSvcWatch').then(() => {
+        return this.$store.dispatch('podData/fetchSvcData')
+        }).then(() => {
+          return this.$store.dispatch('podData/watchSvcData');
+        },
+        (rej) => {
+          console.log("Error" + rej);
+        }
+      );
       // console.log("Finish init")
     },
     startRefresher: function() {
