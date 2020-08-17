@@ -5,9 +5,9 @@
         <v-list-item-group mandatory active-class="teal--text text--accent-4">
           <v-list-item v-for="item in menuItems" :key="item.title" :to="item.link">
             <v-list-item-icon>
-              <v-icon>mdi-{{ item.icon}}</v-icon>
+              <v-icon>mdi-{{ item.icon }}</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>{{ item.title}}</v-list-item-title>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -51,9 +51,6 @@ export default {
         { icon: "settings", title: "Settings", link: "/setting" }
       ]
     };
-  },
-  created() {
-    console.log(this.$root.$data);
   }
 };
 </script>
