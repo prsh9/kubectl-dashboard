@@ -1,34 +1,37 @@
 <template>
   <div>
-    <v-card>
+    <v-card class="log-margin">
       <v-card-title>
         <h3>Logs for <b class="text-capitalize">{{ podNamespace }} - {{ podName }}</b></h3>
-        <v-layout row class="fab-horizontal">
-          <v-btn color="cyan" depressed fab x-small class="btn-margin" @click="clearConsole">
+      </v-card-title>
+
+      <v-select v-if="num_containers &gt; 1" class="select-margin"
+        v-model="currContainer" :items="get_container_names" menu-props="auto" label="Select" @change="containerChanged"
+      ></v-select>
+
+      <v-card flat>
+        <v-app-bar flat dense>
+          <v-spacer></v-spacer>
+
+          <v-btn icon x-small class="btn-margin" @click="clearConsole">
             <v-icon>mdi-close</v-icon>
           </v-btn>
-          <v-btn color="cyan" depressed fab x-small class="btn-margin" @click="wrap = !wrap">
-            <v-icon>{{wrap ? 'mdi-format-text-wrapping-wrap' : 'mdi-format-text-wrapping-overflow'}}</v-icon>
+          <v-btn icon x-small class="btn-margin" @click="wrap = !wrap">
+            <v-icon>{{ wrap ? "mdi-format-text-wrapping-wrap" : "mdi-format-text-wrapping-overflow" }}</v-icon>
           </v-btn>
-          <v-btn color="cyan" depressed fab x-small class="btn-margin" @click="scrollBottom">
+          <v-btn icon x-small class="btn-margin" @click="scrollBottom">
             <v-icon>mdi-format-vertical-align-bottom</v-icon>
           </v-btn>
-        </v-layout>
-      </v-card-title>
-      <v-card-subtitle v-if="num_containers &gt; 1">
-        <v-select
-          v-model="currContainer"
-          :items="get_container_names"
-          menu-props="auto"
-          label="Select Container"
-          @change="containerChanged"></v-select>
-      </v-card-subtitle>
-
-      <v-card class="overflow-y-auto" max-height="75vh" flat outlined>
-        <v-card-text id="logWindow" ref="logwindow" max-height="75vh">
-          <pre v-if="!connected">{{errMessage}}</pre>
-          <pre v-else :class="[wrap ? 'my-text-wrap' : 'my-text-no-wrap']" v-for="(text, index) in logdata" :key="text + '=' +index">{{text}}</pre>
-        </v-card-text>
+          <v-btn icon x-small class="btn-margin" @click="refresh">
+            <v-icon>mdi-refresh</v-icon>
+          </v-btn>
+        </v-app-bar>
+        <v-sheet class="overflow-y-auto logsheet" :max-height="logWindowHeight">
+          <v-card-text id="logWindow" ref="logwindow">
+            <pre v-if="!connected">{{ errMessage }}</pre>
+            <pre v-else :class="[wrap ? 'my-text-wrap' : 'my-text-no-wrap']" v-for="(text, index) in logdata" :key="text + '=' + index">{{ text }}</pre>
+          </v-card-text>
+        </v-sheet>
       </v-card>
     </v-card>
   </div>
@@ -50,6 +53,7 @@ export default {
     return {
       logdata: [],
       connected: false,
+      addTimestamps: false,
       errMessage: "",
       wrap: true,
       pod_spec: null,
@@ -67,7 +71,18 @@ export default {
         });
       }
 
+      if(this.pod_spec.spec.initContainers) {
+        this.pod_spec.spec.initContainers.forEach(element => {
+          container_names.push(element.name);
+        });
+      }
       return container_names;
+    },
+    logWindowHeight: function() {
+      if(this.num_containers > 1) {
+        return "75vh";
+      }
+      return "83vh";
     }
   },
   mounted() {
@@ -84,6 +99,9 @@ export default {
         var pod_details = await client.api.v1.namespaces(this.podNamespace).pods(this.podName).get();
         this.pod_spec = pod_details.body;
         this.num_containers = this.pod_spec.spec.containers.length;
+        if(this.pod_spec.spec.initContainers) {
+          this.num_containers += this.pod_spec.spec.initContainers.length
+        }
         this.currContainer = this.pod_spec.spec.containers[0].name;
 
         this.startLogging();
@@ -104,17 +122,15 @@ export default {
         stream = await client.api.v1.namespaces(this.podNamespace).pods(this.podName).log.getByteStream({
           qs: {
             container: this.currContainer,
-            tailLines: 1000,
-            follow: true
+            tailLines: 100,
+            follow: true,
+            timestamps: this.addTimestamps
           }
         });
         this.connected = true;
 
         stream.on("data", object => {
-          if (this.logdata.length > 10000) {
-            this.logdata.splice(0, 500);
-          }
-          this.logdata.push(object);
+          this.addLog(object)
         });
       } catch (e) {
         this.connected = false;
@@ -128,12 +144,25 @@ export default {
       }
       this.clearConsole();
     },
+    addLog: function(data) {
+      if (this.logdata.length > 10000) {
+        this.logdata.splice(0, 500);
+      }
+      this.logdata.push(data);
+      // this.$nextTick(function() {
+      //   this.scrollBottom();
+      // })
+    },
     clearConsole: function() {
       this.logdata.length = 0;
       this.$forceUpdate();
     },
     scrollBottom: function() {
       this.$refs.logwindow.lastChild.scrollIntoView();
+    },
+    refresh: function() {
+      this.stopLogging();
+      this.startLogging();
     },
     testFunction: function() {
       this.connected = true;
@@ -152,9 +181,6 @@ export default {
 
 <style scoped>
 .fab-horizontal {
-  position: absolute;
-  right: 0;
-  margin-right: 10px;
   margin: 5px;
 }
 .btn-margin {
@@ -165,5 +191,17 @@ export default {
 }
 .my-text-no-wrap {
   white-space: nowrap;
+}
+.logsheet {
+  background-color: floralwhite;
+}
+.select-margin{
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.log-margin {
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 30px;
 }
 </style>

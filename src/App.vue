@@ -21,9 +21,7 @@
     <!-- Sizes your content based upon application components -->
     <v-content>
       <!-- Provides the application the proper gutter -->
-      <v-container>
-        <router-view></router-view>
-      </v-container>
+      <router-view></router-view>
     </v-content>
   </v-app>
 </template>
