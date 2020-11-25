@@ -78,7 +78,6 @@ export default {
       // console.log("Finish Refresh")
     },
     onViewLog: function(podNamespace, podName) {
-      console.log("On View Logs for " + podNamespace + "." + podName);
       this.$emit('view-log', podNamespace, podName);
     }
   },

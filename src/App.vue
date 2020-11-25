@@ -51,8 +51,9 @@ export default {
       drawer: null,
       menuItems: [
         { icon: "home", title: "Home", link: "/" },
-        { icon: "settings", title: "Settings", link: "/setting" },
-        { icon: "home", title: "Console Groups", link: "/console" }
+        { icon: "console", title: "Console Group", link: "/console" },
+        // { icon: "post", title: "Log Group", link: "/log" },
+        // { icon: "cog", title: "Settings", link: "/setting" },
       ]
     };
   }

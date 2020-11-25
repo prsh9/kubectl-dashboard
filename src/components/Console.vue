@@ -1,7 +1,18 @@
 <template>
   <div>
-    Console for {{ podSpec.podNamespace }} - {{ podSpec.podName }}
-    <div ref="terminal" class=""></div>
+    <v-card flat>
+      <v-app-bar short color="white" flat dense>
+        <h1>Shell {{ podSpec.podNamespace }}/{{ podSpec.podName }}</h1>
+        <v-spacer></v-spacer>
+        <v-btn icon small class="btn-margin" @click="onResize">
+          <v-icon>mdi-fit-to-page</v-icon>
+        </v-btn>
+        <v-btn icon small class="btn-margin" @click="refresh">
+          <v-icon>mdi-refresh</v-icon>
+        </v-btn>
+      </v-app-bar>
+      <div ref="terminal" class="term-margin"></div>
+    </v-card>
   </div>
 </template>
 
@@ -11,7 +22,6 @@ import * as pty from 'node-pty';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { } from 'xterm/css/xterm.css'
-import { debounce } from '../js/helpers.js'
 
 export default {
   name: "Console",
@@ -27,16 +37,14 @@ export default {
   data() {
     return {
       term: Terminal,
-      fitAddon: FitAddon
+      fitAddon: FitAddon,
     };
   },
   mounted() {
     this.init();
   },
-  beforeDestroy: function () {
-    window.removeEventListener('resize', this.onResize)
-    this.term.dispose()
-    this.fitAddon.dispose()
+  beforeDestroy() {
+    this.onClose();
   },
   methods: {
     init: function() {
@@ -67,15 +75,29 @@ export default {
       this.term.onData(function(data) {
         ptyProcess.write(data);
       })
-
-      window.addEventListener('resize', debounce(this.onResize, 500, true));
     },
     onResize: function() {
       if (this.fitAddon ) {
       this.fitAddon.fit();
       }
+    },
+    onClose: function() {
+      this.term.dispose();
+      this.fitAddon.dispose();
+    },
+    refresh: function() {
+      this.onClose();
+      this.init();
     }
   }
 };
 </script>
 
+<style scoped>
+.btn-margin {
+  margin: 3px;
+}
+.term-margin {
+  margin: 5px;
+}
+</style>

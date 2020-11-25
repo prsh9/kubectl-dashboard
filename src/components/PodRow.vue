@@ -218,9 +218,6 @@ export default {
       this.$store.dispatch("podData/deletePod", this.row.metadata.uid);
     },
     viewLogsAction: function() {
-      console.log(
-        "Calling View Logs for " + this.pod_namespace + "." + this.pod_name
-      );
       this.$emit("view-log", this.pod_namespace, this.pod_name);
     },
     describeAction: function() {

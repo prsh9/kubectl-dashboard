@@ -1,6 +1,8 @@
 <template>
   <div>
-    Console Groups
+    <v-card v-if="!consoles.length">
+      No Open/Created Consoles
+    </v-card>
     <v-tabs fixed-tabs v-model="selectedTab">
       <v-tab v-for="(item, index) in consoles" :key="item.podUid">
         <v-spacer></v-spacer>
