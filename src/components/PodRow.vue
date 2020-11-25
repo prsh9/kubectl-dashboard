@@ -33,7 +33,7 @@
     <td>
       <v-menu left offset-y open-on-click>
         <template v-slot:activator="{ on }">
-          <v-icon v-on="on">mdi-menu</v-icon>
+          <v-icon v-on="on" class="OCMen">mdi-menu</v-icon>
         </template>
         <v-list dense>
           <v-list-item v-for="(item, index) in actions" :key="index" @click="item.action()">
@@ -49,6 +49,21 @@
           :resourceUID="row.metadata.uid"
           @close="dialog = false"
         ></DescribeResource>
+      </v-dialog>
+      <v-dialog v-model="shellSelection" max-width="400px">
+        <!-- v-if is necessary to mount every time dialog is opened -->
+        <v-card v-if="shellSelection" flat>
+          <v-card-title>Enter Shell To Use</v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <v-text-field clearable v-model="shellSelectionText" />
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="teal darken-2" text @click="openConsoleUsing">Ok</v-btn>
+            <v-btn color="teal darken-2" text @click="shellSelection = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
       </v-dialog>
     </td>
   </tr>
@@ -66,17 +81,27 @@ export default {
   data() {
     return {
       dialog: false,
+      shellSelection: false,
+      shellSelectionText: "bash",
       actions: [
         {
-          title: "Describe",
-          action: this.describeAction
+          title: "Open Console",
+          men: "OCMen",
+          action: this.openConsoleAction
         },
         {
           title: "View Logs",
+          men: "OCMen1",
           action: this.viewLogsAction
         },
         {
+          title: "Describe",
+          men: "OCMen2",
+          action: this.describeAction
+        },
+        {
           title: "Delete",
+          men: "OCMen3",
           action: this.deleteAction
         }
       ]
@@ -196,10 +221,18 @@ export default {
       console.log(
         "Calling View Logs for " + this.pod_namespace + "." + this.pod_name
       );
-      this.$emit("view_log", this.pod_namespace, this.pod_name);
+      this.$emit("view-log", this.pod_namespace, this.pod_name);
     },
     describeAction: function() {
       this.dialog = true;
+    },
+    openConsoleAction: function() {
+      this.shellSelection = true;
+    },
+    openConsoleUsing: function() {
+      this.shellSelection = false;
+      this.$store.dispatch("podData/openConsole", this.row.metadata.uid);
+      this.$router.push("/console")
     }
   },
   components: {
