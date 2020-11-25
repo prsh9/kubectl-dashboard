@@ -19,7 +19,7 @@ module.exports = {
                     "target": "zip"
                 }
             },
-            externals: ["kubernetes-client"]
+            externals: ["kubernetes-client", "node-pty"]
         }
     },
     configureWebpack: {

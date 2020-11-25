@@ -21,7 +21,9 @@
     <!-- Sizes your content based upon application components -->
     <v-content>
       <!-- Provides the application the proper gutter -->
-      <router-view></router-view>
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
     </v-content>
   </v-app>
 </template>
@@ -29,12 +31,14 @@
 <script>
 import Home from "./components/Home.vue";
 import Setting from "./components/Setting.vue";
+import ConsoleGroups from './components/ConsoleGroups.vue'
 
 import VueRouter from "vue-router";
 const router = new VueRouter({
   routes: [
     { path: "/", component: Home },
-    { path: "/setting", component: Setting }
+    { path: "/setting", component: Setting },
+    { path: "/console", component: ConsoleGroups }
   ]
 });
 
@@ -43,10 +47,13 @@ export default {
   router,
   data() {
     return {
+      items: ["first", "second"],
       drawer: null,
       menuItems: [
         { icon: "home", title: "Home", link: "/" },
-        { icon: "settings", title: "Settings", link: "/setting" }
+        { icon: "console", title: "Console Group", link: "/console" },
+        // { icon: "post", title: "Log Group", link: "/log" },
+        // { icon: "cog", title: "Settings", link: "/setting" },
       ]
     };
   }

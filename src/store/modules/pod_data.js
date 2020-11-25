@@ -20,7 +20,6 @@ function getKey(podItem) {
 var podStream = null;
 var svcStream = null;
 
-// shape: [{ id, quantity }]
 const state = {
   status: false,
   message: "Loading",
@@ -31,7 +30,10 @@ const state = {
   svc_data: {
     metadata: null,
     items: {}
-  }
+  },
+  open_consoles: {
+    items: []
+  },
 }
 
 // getters
@@ -64,6 +66,9 @@ const getters = {
   getSvcData: (state) => (svcUid) => {
     return state.svc_data.items[svcUid];
   },
+  getOpenConsoles: (state) => {
+    return state.open_consoles.items;
+  }
 }
 
 // actions
@@ -226,6 +231,13 @@ const actions = {
       }
     });
   },
+  openConsole: function({ commit, getters }, podUid ) {
+    var podSpec = getters.getPodData(podUid)
+    commit('addOpenConsole', {podUid: podUid, podNamespace: podSpec.metadata.namespace, podName: podSpec.metadata.name })
+  },
+  deleteOpenConsole: function({ commit }, index ) {
+    commit('deleteOpenConsole', {index: index })
+  },
 }
 
 // mutations
@@ -251,6 +263,12 @@ const mutations = {
   },
   deleteSvcItem(state, svcData) {
     Vue.delete(state.svc_data.items, getKey(svcData));
+  },
+  addOpenConsole(state, { podUid, podNamespace, podName }) {
+    state.open_consoles.items.push({podUid: podUid, podNamespace: podNamespace, podName: podName})
+  },
+  deleteOpenConsole(state, { index }) {
+    state.open_consoles.items.splice(index, 1)
   },
 }
 

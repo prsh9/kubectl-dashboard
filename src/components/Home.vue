@@ -14,7 +14,7 @@
     </v-tabs>
     <v-tabs-items v-model="tab">
       <v-tab-item>
-        <DisplayPodData @view_log="onViewLog" />
+        <DisplayPodData @view-log="onViewLog" />
       </v-tab-item>
       <v-tab-item>
         <DisplaySvcData />
