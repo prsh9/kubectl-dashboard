@@ -16,7 +16,11 @@ jobs:
     steps:
     - name: Rebuild Pages
       run: |
-        curl --request POST \
+        curl --fail --request POST \
         --url https://api.github.com/repos/${{ github.repository }}/pages/builds \
-        --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+        --header 'authorization: Bearer $USER_TOKEN' \
         --header 'content-type: application/json'
+        env:
+          # You must create a personal token with repo access as GitHub does
+          # not yet support server-to-server page builds.
+          USER_TOKEN: ${{ secrets.USER_TOKEN }}
