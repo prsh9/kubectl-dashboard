@@ -15,12 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Rebuild Pages
+      env:
+        USER_TOKEN: ${{ secrets.USER_TOKEN }}
       run: |
         curl --fail --request POST \
         --url https://api.github.com/repos/${{ github.repository }}/pages/builds \
         --header 'authorization: token $USER_TOKEN' \
         --header 'content-type: application/json'
-        env:
-          # You must create a personal token with repo access as GitHub does
-          # not yet support server-to-server page builds.
-          USER_TOKEN: ${{ secrets.USER_TOKEN }}
+        
