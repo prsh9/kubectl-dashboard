@@ -4,9 +4,9 @@
       No Open/Created Consoles
     </v-card>
     <v-tabs fixed-tabs v-model="selectedTab">
-      <v-tab v-for="(item, index) in consoles" :key="item.podUid">
+      <v-tab v-for="(item, index) in consoles" :key="item.podSpec.podUid">
         <v-spacer></v-spacer>
-        {{ item.podName }}
+        {{ item.podSpec.podName }}
         <v-spacer></v-spacer>
         <v-btn class="text-right" icon outlined x-small @click="close(index)">
           <v-icon>mdi-close</v-icon>
@@ -15,7 +15,7 @@
     </v-tabs>
     <v-tabs-items v-model="selectedTab">
       <v-tab-item v-for="item in consoles" :key="item.podUid">
-        <Console :podSpec="item" />
+        <Console :podSpec="item.podSpec" :shellType="item.shellType" />
       </v-tab-item>
     </v-tabs-items>
   </div>

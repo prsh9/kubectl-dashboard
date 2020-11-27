@@ -231,9 +231,9 @@ const actions = {
       }
     });
   },
-  openConsole: function({ commit, getters }, podUid ) {
+  openConsole: function({ commit, getters }, { podUid, shellType } ) {
     var podSpec = getters.getPodData(podUid)
-    commit('addOpenConsole', {podUid: podUid, podNamespace: podSpec.metadata.namespace, podName: podSpec.metadata.name })
+    commit('addOpenConsole', {podUid: podUid, podNamespace: podSpec.metadata.namespace, podName: podSpec.metadata.name, shellType: shellType })
   },
   deleteOpenConsole: function({ commit }, index ) {
     commit('deleteOpenConsole', {index: index })
@@ -264,8 +264,8 @@ const mutations = {
   deleteSvcItem(state, svcData) {
     Vue.delete(state.svc_data.items, getKey(svcData));
   },
-  addOpenConsole(state, { podUid, podNamespace, podName }) {
-    state.open_consoles.items.push({podUid: podUid, podNamespace: podNamespace, podName: podName})
+  addOpenConsole(state, { podUid, podNamespace, podName, shellType }) {
+    state.open_consoles.items.push({podSpec: {podUid: podUid, podNamespace: podNamespace, podName: podName}, shellType: shellType})
   },
   deleteOpenConsole(state, { index }) {
     state.open_consoles.items.splice(index, 1)

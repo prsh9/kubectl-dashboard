@@ -59,17 +59,18 @@ export default {
 
       var ptyProcess = pty.spawn(shell, [], {
         name: this.podSpec.podUid,
-        cwd: process.env.HOME,
+        cwd: os.homedir(),
         env: process.env
       });
 
       this.fitAddon.fit();
+      this.term.focus();
 
-      var command = "kubectl exec -it " + this.podSpec.podName + " " + this.shellType + " -n " + this.podSpec.podNamespace + "; exit\r"
+      var command = "kubectl exec -it " + this.podSpec.podName + " " + this.shellType + " -n " + this.podSpec.podNamespace + "; exit\r";
       ptyProcess.write(command);
 
       ptyProcess.onData((data) => {
-        this.term.write(data)
+        this.term.write(data);
       });
 
       this.term.onData(function(data) {
@@ -82,8 +83,8 @@ export default {
       }
     },
     onClose: function() {
-      this.term.dispose();
       this.fitAddon.dispose();
+      this.term.dispose();
     },
     refresh: function() {
       this.onClose();
