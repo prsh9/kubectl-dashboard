@@ -56,7 +56,7 @@
           <v-card-title>Enter Shell To Use</v-card-title>
           <v-divider></v-divider>
           <v-card-text>
-            <v-text-field clearable v-model="shellSelectionText" />
+            <v-text-field clearable v-model="shellSelectionText" autofocus @focus="$event.target.select()" @keyup.enter="openConsoleUsing" />
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -228,7 +228,7 @@ export default {
     },
     openConsoleUsing: function() {
       this.shellSelection = false;
-      this.$store.dispatch("podData/openConsole", this.row.metadata.uid);
+      this.$store.dispatch("podData/openConsole", { podUid: this.row.metadata.uid, shellType: this.shellSelectionText });
       this.$router.push("/console")
     }
   },
