@@ -7,6 +7,7 @@
 
 name: Releaser
 on:
+  workflow_dispatch:
   release:
     types: [published, prereleased]
 
@@ -18,6 +19,7 @@ jobs:
       env:
         USER_TOKEN: ${{ secrets.USER_TOKEN }}
       run: |
+        echo $USER_TOKEN
         curl --fail --request POST \
         --url https://api.github.com/repos/${{ github.repository }}/pages/builds \
         --header 'authorization: token $USER_TOKEN' \
