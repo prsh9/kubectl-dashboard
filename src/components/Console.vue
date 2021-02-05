@@ -1,19 +1,18 @@
 <template>
-  <div>
-    <v-card flat>
-      <v-app-bar short color="white" flat dense>
-        <h1>Shell {{ podSpec.podNamespace }}/{{ podSpec.podName }}</h1>
-        <v-spacer></v-spacer>
+  <v-card flat class="consolecontent">
+    <v-app-bar short color="white" flat dense class="appbar-console">
+      <h1>Shell {{ podSpec.podNamespace }}/{{ podSpec.podName }}</h1>
+      <div class="appbar-btns">
         <v-btn icon small class="btn-margin" @click="onResize">
           <v-icon>mdi-fit-to-page</v-icon>
         </v-btn>
         <v-btn icon small class="btn-margin" @click="refresh">
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
-      </v-app-bar>
-      <div ref="terminal" class="term-margin"></div>
-    </v-card>
-  </div>
+      </div>
+    </v-app-bar>
+    <div ref="terminal" class="term-margin"></div>
+  </v-card>
 </template>
 
 <script>
@@ -94,11 +93,29 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+.consolecontent{
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.appbar-btns {
+  margin-left: auto;
+}
 .btn-margin {
-  margin: 3px;
+  margin: 3px; 
 }
 .term-margin {
+  display: flex;
   margin: 5px;
+  align-self: stretch;
+  flex-grow: 6;
+}
+.appbar-console {
+  display: flex;
+}
+.appbar-console > .v-toolbar__content {
+  display: flex;
+  flex-grow: 1;
 }
 </style>

@@ -19,12 +19,14 @@
     </v-app-bar>
     
     <!-- Sizes your content based upon application components -->
-    <v-content>
+    <v-main>
       <!-- Provides the application the proper gutter -->
-      <keep-alive>
-        <router-view></router-view>
-      </keep-alive>
-    </v-content>
+      <v-container fluid class="main-container">
+        <keep-alive>
+          <router-view></router-view>
+        </keep-alive>
+      </v-container>
+    </v-main>
   </v-app>
 </template>
 
@@ -47,7 +49,6 @@ export default {
   router,
   data() {
     return {
-      items: ["first", "second"],
       drawer: null,
       menuItems: [
         { icon: "home", title: "Home", link: "/" },
@@ -60,3 +61,12 @@ export default {
 };
 </script>
 
+<style>
+  .main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: 100%;
+    min-height: 200px;
+  }
+</style>
