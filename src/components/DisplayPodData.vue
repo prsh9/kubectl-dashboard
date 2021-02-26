@@ -8,7 +8,7 @@
           </tr>
         </thead>
         <tbody>
-          <PodRow v-for="row in podItems" :key="row.metadata.uid" :row="row" v-on:view-log="onViewLog"></PodRow>
+          <PodRow v-for="row in podItems" :key="row.metadata.uid" :row="row"></PodRow>
         </tbody>
       </v-simple-table>
     </div>
@@ -77,9 +77,6 @@ export default {
       });
       // console.log("Finish Refresh")
     },
-    onViewLog: function(podNamespace, podName) {
-      this.$emit('view-log', podNamespace, podName);
-    }
   },
   components: {
     PodRow

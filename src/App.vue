@@ -19,12 +19,14 @@
     </v-app-bar>
     
     <!-- Sizes your content based upon application components -->
-    <v-content>
+    <v-main>
       <!-- Provides the application the proper gutter -->
-      <keep-alive>
-        <router-view></router-view>
-      </keep-alive>
-    </v-content>
+      <v-container fluid class="main-container">
+        <keep-alive>
+          <router-view></router-view>
+        </keep-alive>
+      </v-container>
+    </v-main>
   </v-app>
 </template>
 
@@ -32,13 +34,16 @@
 import Home from "./components/Home.vue";
 import Setting from "./components/Setting.vue";
 import ConsoleGroups from './components/ConsoleGroups.vue'
+import LogGroups from './components/LogGroups.vue';
 
 import VueRouter from "vue-router";
+
 const router = new VueRouter({
   routes: [
     { path: "/", component: Home },
     { path: "/setting", component: Setting },
-    { path: "/console", component: ConsoleGroups }
+    { path: "/log", component: LogGroups },
+    { path: "/console", component: ConsoleGroups },
   ]
 });
 
@@ -47,12 +52,11 @@ export default {
   router,
   data() {
     return {
-      items: ["first", "second"],
       drawer: null,
       menuItems: [
         { icon: "home", title: "Home", link: "/" },
+        { icon: "math-log", title: "Log Group", link: "/log" },
         { icon: "console", title: "Console Group", link: "/console" },
-        // { icon: "post", title: "Log Group", link: "/log" },
         // { icon: "cog", title: "Settings", link: "/setting" },
       ]
     };
@@ -60,3 +64,12 @@ export default {
 };
 </script>
 
+<style>
+  .main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: 100%;
+    min-height: 200px;
+  }
+</style>

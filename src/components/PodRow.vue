@@ -86,22 +86,18 @@ export default {
       actions: [
         {
           title: "Open Console",
-          men: "OCMen",
           action: this.openConsoleAction
         },
         {
           title: "View Logs",
-          men: "OCMen1",
           action: this.viewLogsAction
         },
         {
           title: "Describe",
-          men: "OCMen2",
           action: this.describeAction
         },
         {
           title: "Delete",
-          men: "OCMen3",
           action: this.deleteAction
         }
       ]
@@ -218,7 +214,8 @@ export default {
       this.$store.dispatch("podData/deletePod", this.row.metadata.uid);
     },
     viewLogsAction: function() {
-      this.$emit("view-log", this.pod_namespace, this.pod_name);
+      this.$store.dispatch("podData/openLog", { podUid: this.row.metadata.uid });
+      this.$router.push("/log")
     },
     describeAction: function() {
       this.dialog = true;
