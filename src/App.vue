@@ -34,13 +34,16 @@
 import Home from "./components/Home.vue";
 import Setting from "./components/Setting.vue";
 import ConsoleGroups from './components/ConsoleGroups.vue'
+import LogGroups from './components/LogGroups.vue';
 
 import VueRouter from "vue-router";
+
 const router = new VueRouter({
   routes: [
     { path: "/", component: Home },
     { path: "/setting", component: Setting },
-    { path: "/console", component: ConsoleGroups }
+    { path: "/log", component: LogGroups },
+    { path: "/console", component: ConsoleGroups },
   ]
 });
 
@@ -52,8 +55,8 @@ export default {
       drawer: null,
       menuItems: [
         { icon: "home", title: "Home", link: "/" },
+        { icon: "math-log", title: "Log Group", link: "/log" },
         { icon: "console", title: "Console Group", link: "/console" },
-        // { icon: "post", title: "Log Group", link: "/log" },
         // { icon: "cog", title: "Settings", link: "/setting" },
       ]
     };

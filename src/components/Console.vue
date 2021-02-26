@@ -20,7 +20,8 @@ import os from 'os';
 import * as pty from 'node-pty';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import { } from 'xterm/css/xterm.css'
+import { } from 'xterm/css/xterm.css';
+import * as helper from '../js/helpers.js';
 
 export default {
   name: "Console",
@@ -37,6 +38,7 @@ export default {
     return {
       term: Terminal,
       fitAddon: FitAddon,
+      resizeObserver: ResizeObserver,
     };
   },
   mounted() {
@@ -65,6 +67,9 @@ export default {
       this.fitAddon.fit();
       this.term.focus();
 
+      this.resizeObserver = new ResizeObserver(helper.debounce(this.checkResize, 500))
+      this.resizeObserver.observe(this.$refs.terminal)
+
       var command = "kubectl exec -it " + this.podSpec.podName + " " + this.shellType + " -n " + this.podSpec.podNamespace + "; exit\r";
       ptyProcess.write(command);
 
@@ -84,10 +89,16 @@ export default {
     onClose: function() {
       this.fitAddon.dispose();
       this.term.dispose();
+      this.resizeObserver.disconnect();
     },
     refresh: function() {
       this.onClose();
       this.init();
+    },
+    checkResize: function(event) {
+      if(event[0].contentRect.height > 0) {
+        this.onResize()
+      }
     }
   }
 };

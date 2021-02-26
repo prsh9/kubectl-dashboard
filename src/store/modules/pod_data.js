@@ -34,6 +34,9 @@ const state = {
   open_consoles: {
     items: []
   },
+  open_logs: {
+    items: []
+  }
 }
 
 // getters
@@ -68,6 +71,9 @@ const getters = {
   },
   getOpenConsoles: (state) => {
     return state.open_consoles.items;
+  },
+  getOpenLogs: (state) => {
+    return state.open_logs.items;
   }
 }
 
@@ -238,6 +244,13 @@ const actions = {
   deleteOpenConsole: function({ commit }, index ) {
     commit('deleteOpenConsole', {index: index })
   },
+  openLog: function({ commit, getters }, { podUid }) {
+    var podSpec = getters.getPodData(podUid)
+    commit('addOpenLog', {podUid: podUid, podNamespace: podSpec.metadata.namespace, podName: podSpec.metadata.name, podSpec: podSpec })
+  },
+  closeLog: function({ commit }, index ) {
+    commit('deleteOpenLog', {index: index })
+  },
 }
 
 // mutations
@@ -269,6 +282,12 @@ const mutations = {
   },
   deleteOpenConsole(state, { index }) {
     state.open_consoles.items.splice(index, 1)
+  },
+  addOpenLog(state, { podUid, podNamespace, podName, podSpec }) {
+    state.open_logs.items.push({logDetails: {podUid: podUid, podNamespace: podNamespace, podName: podName, podSpec: podSpec}})
+  },
+  deleteOpenLog(state, { index }) {
+    state.open_logs.items.splice(index, 1)
   },
 }
 

@@ -1,34 +1,34 @@
 <template>
-  <div id="consolegroup" class="flexcontainer flex-grow-1">
-    <v-card v-if="!consoles.length" outlined class="flexcontainer flex-grow-1 justify-center align-center">
-      No Open/Created Consoles
+  <div id="loggroup" class="flexcontainer flex-grow-1">
+    <v-card v-if="!logs.length" outlined class="flexcontainer flex-grow-1 justify-center align-center">
+      No Opened Logs
     </v-card>
-    <v-tabs fixed-tabs v-model="selectedTab" v-if="consoles.length" class="flexcontainer flex-grow-0 flex-shrink-1">
-      <v-tab v-for="(item, index) in consoles" :key="item.podSpec.podUid">
+    <v-tabs fixed-tabs v-model="selectedTab" v-if="logs.length" class="flexcontainer flex-grow-0 flex-shrink-1">
+      <v-tab v-for="(item, index) in logs" :key="item.logDetails.podUid">
         <v-spacer></v-spacer>
-        {{ item.podSpec.podName }}
+        {{ item.logDetails.podName }} Logs
         <v-spacer></v-spacer>
         <v-btn class="text-right" icon outlined x-small @click="close(index)">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-tab>
     </v-tabs>
-    <v-tabs-items v-model="selectedTab" v-if="consoles.length" class="tabclass">
-      <v-tab-item v-for="item in consoles" :key="item.podSpec.podUid" active-class="tabclass">
-        <Console :podSpec="item.podSpec" :shellType="item.shellType"/>
+    <v-tabs-items v-model="selectedTab" v-if="logs.length" class="tabclass">
+      <v-tab-item v-for="item in logs" :key="item.logDetails.podUid" active-class="tabclass">
+        <LogViewer :logDetails="item.logDetails"/>
       </v-tab-item>
     </v-tabs-items>
   </div>
 </template>
 
 <script>
-import Console from "./Console.vue";
+import LogViewer from "./LogViewer.vue";
 import { createNamespacedHelpers } from 'vuex'
 
 const { mapGetters } = createNamespacedHelpers('podData')
 
 export default {
-  name: "ConsoleGroups",
+  name: "LogGroups",
   props: [''],
   data() {
     return {
@@ -37,16 +37,16 @@ export default {
   },
   computed: {
     ...mapGetters({
-      consoles: 'getOpenConsoles',
+      logs: 'getOpenLogs',
     }),
   },
   methods: {
     close: function(item) {
-      this.$store.dispatch("podData/deleteOpenConsole", item)
+      this.$store.dispatch("podData/closeLog", item)
     }
   },
   components: {
-    Console
+    LogViewer
   },
 };
 </script>
