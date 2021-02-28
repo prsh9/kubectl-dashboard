@@ -25,7 +25,7 @@
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
       </v-app-bar>
-      <v-card flat class="logsheet">
+      <v-card flat class="overflow-y-auto logsheet">
         <v-card-text id="logWindow" ref="logwindow">
           <pre v-if="!connected">{{ errMessage }}</pre>
           <pre v-else :class="[wrap ? 'my-text-wrap' : 'my-text-no-wrap']" v-for="(text, index) in logdata" :key="text + '=' + index">{{ text }}</pre>
@@ -144,10 +144,12 @@ export default {
       var i = this.$refs.logwindow
       if(i) {
         var windowHeight = window.innerHeight - 250
+        var windowWidth = window.innerWidth - 120
         if(this.num_containers > 1) {
           windowHeight -= 66
         }
         i.style.maxHeight = windowHeight + "px"
+        i.style.maxWidth = windowWidth + "px"
       }
     },
     clearConsole: function() {
@@ -196,7 +198,6 @@ export default {
 }
 .logsheet {
   background-color: floralwhite;
-  overflow: auto;
 }
 .select-margin{
   margin-left: 10px;
