@@ -140,16 +140,20 @@ export default {
     close: function() {
       this.resizeObserver.disconnect();
     },
-    checkResize: function() {
-      var i = this.$refs.logwindow
-      if(i) {
-        var windowHeight = window.innerHeight - 250
-        var windowWidth = window.innerWidth - 120
-        if(this.num_containers > 1) {
-          windowHeight -= 66
+    checkResize: function(event) {
+      for (let entry of event) {
+        if(entry.contentRect && entry.contentRect.height > 0) {
+          var i = this.$refs.logwindow
+          if(i) {
+            var windowHeight = window.innerHeight - 250
+            var windowWidth = window.innerWidth - 120
+            if(this.num_containers > 1) {
+              windowHeight -= 66
+            }
+            i.style.maxHeight = windowHeight + "px"
+            i.style.maxWidth = windowWidth + "px"
+          }
         }
-        i.style.maxHeight = windowHeight + "px"
-        i.style.maxWidth = windowWidth + "px"
       }
     },
     clearConsole: function() {
