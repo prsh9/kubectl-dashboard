@@ -38,6 +38,7 @@ export default {
     return {
       term: Terminal,
       fitAddon: FitAddon,
+      ptyProcess: pty.IPty,
       resizeObserver: ResizeObserver,
     };
   },
@@ -58,36 +59,44 @@ export default {
 
       this.term.open(this.$refs.terminal);
 
-      var ptyProcess = pty.spawn(shell, [], {
+      this.ptyProcess = pty.spawn(shell, [], {
         name: this.podSpec.podUid,
         cwd: os.homedir(),
         env: process.env
       });
 
       this.fitAddon.fit();
+      var col = this.term.cols;
+      var row = this.term.rows;
+      this.ptyProcess.resize(col, row)
       this.term.focus();
 
       this.resizeObserver = new ResizeObserver(helper.debounce(this.checkResize, 500))
       this.resizeObserver.observe(this.$refs.terminal)
 
       var command = "kubectl exec -it " + this.podSpec.podName + " " + this.shellType + " -n " + this.podSpec.podNamespace + "; exit\r";
-      ptyProcess.write(command);
+      this.ptyProcess.write(command);
 
-      ptyProcess.onData((data) => {
+      this.ptyProcess.onData((data) => {
         this.term.write(data);
       });
 
-      this.term.onData(function(data) {
-        ptyProcess.write(data);
+      this.term.onData((data) => {
+        this.ptyProcess.write(data);
       })
     },
     onResize: function() {
       if (this.fitAddon ) {
-      this.fitAddon.fit();
+        this.fitAddon.fit();
+
+        var col = this.term.cols;
+        var row = this.term.rows;
+        this.ptyProcess.resize(col, row)
       }
     },
     onClose: function() {
       this.fitAddon.dispose();
+      this.ptyProcess.kill();
       this.term.dispose();
       this.resizeObserver.disconnect();
     },
@@ -96,8 +105,10 @@ export default {
       this.init();
     },
     checkResize: function(event) {
-      if(event[0].contentRect.height > 0) {
-        this.onResize()
+      for (let entry of event) {
+        if(entry.contentRect && entry.contentRect.height > 0) {
+          this.onResize()
+        }
       }
     }
   }
