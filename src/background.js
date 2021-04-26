@@ -1,11 +1,13 @@
 'use strict'
 
+/* global __static */
+
 import path from 'path'
 import { app, protocol, BrowserWindow } from 'electron'
 import {
   createProtocol,
-  installVueDevtools
 } from 'vue-cli-plugin-electron-builder/lib'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -25,6 +27,7 @@ function createWindow () {
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
       devTools: isDevelopment ? true : false,
       scrollBounce: true
     }
@@ -46,6 +49,8 @@ function createWindow () {
     win = null
   })
 }
+
+app.allowRendererProcessReuse = false
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -76,7 +81,7 @@ app.on('ready', async () => {
     // If you are not using Windows 10 dark mode, you may uncomment these lines
     // In addition, if the linked issue is closed, you can upgrade electron and uncomment these lines
     try {
-      await installVueDevtools()
+      await installExtension(VUEJS_DEVTOOLS)
     } catch (e) {
       console.error('Vue Devtools failed to install:', e.toString())
     }

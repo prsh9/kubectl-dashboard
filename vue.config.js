@@ -19,6 +19,7 @@ module.exports = {
                     "target": "zip"
                 }
             },
+            nodeIntegration: true,
             externals: ["kubernetes-client", "node-pty"]
         }
     },
