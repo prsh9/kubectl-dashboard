@@ -28,6 +28,7 @@ function createWindow () {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      enableRemoteModule: true,
       devTools: isDevelopment ? true : false,
       scrollBounce: true
     }
