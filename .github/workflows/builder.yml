@@ -16,7 +16,10 @@ jobs:
     runs-on: macos-latest
     steps:
     - name: Check
-      run: echo ${{ github.event.inputs.tag_value }}"
+      run: echo "${{ github.event.inputs.tag_value }}"
+
+    - name: Check
+      run: echo "${{ github.event.inputs.nothing | null }}"
     # - name: Checkout
       # uses: actions/checkout@v2
     # - name: Setup Node
