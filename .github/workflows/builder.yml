@@ -4,6 +4,10 @@
 name: Builder
 on:
   workflow_dispatch:
+    inputs:
+      tag_value:
+        description: 'Tag Value'     
+        required: true
   push:
     tags: 
     - v0.*
@@ -23,15 +27,15 @@ jobs:
     - name: Generate Icons
       run: yarn electron:generate-icons
     - name: Build
-      run: yarn electron:build -mlw
+      run: yarn electron:build -mlw --publish never
     - name: deploy
-      uses: "marvinpinto/action-automatic-releases@1.2.1"
+      uses: "marvinpinto/action-automatic-releases@v1.2.1"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         draft: true
+        automatic_release_tag: ${{ github.event.inputs.tag_value || null }}
         files: |
           dist_electron/*.zip
           dist_electron/*.exe
           dist_electron/*.AppImage
           dist_electron/*.dmg
-    
