@@ -4,10 +4,6 @@
 name: Builder
 on:
   workflow_dispatch:
-    inputs:
-      tag_value:
-        description: 'Tag Value'     
-        required: true
   push:
     tags: 
     - v0.*
@@ -15,30 +11,27 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-    - name: Check
-      run: echo "${{ github.event.inputs.tag_value }}"
-    - name: Check2
-      run: echo "${{ github.event.inputs.nothing || null }}"
-    # - name: Checkout
-      # uses: actions/checkout@v2
-    # - name: Setup Node
-    #   uses: actions/setup-node@v2
-    #   with:
-    #     node-version: '14.17'
-    #     cache: 'yarn'
-    # - name: Install
-    #   run: yarn install
-    # - name: Generate Icons
-    #   run: yarn electron:generate-icons
-    # - name: Build
-    #   run: yarn electron:build -mlw --publish never
-    # - name: deploy
-    #   uses: "marvinpinto/action-automatic-releases@v1.2.1"
-    #   with:
-    #     repo_token: "${{ secrets.GITHUB_TOKEN }}"
-    #     draft: true
-    #     files: |
-    #       dist_electron/*.zip
-    #       dist_electron/*.exe
-    #       dist_electron/*.AppImage
-    #       dist_electron/*.dmg
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14.17'
+        cache: 'yarn'
+    - name: Install
+      run: yarn install
+    - name: Generate Icons
+      run: yarn electron:generate-icons
+    - name: Build
+      run: yarn electron:build -mlw --publish never
+    - name: deploy
+      uses: "marvinpinto/action-automatic-releases@v1.2.1"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        draft: true
+        files: |
+          dist_electron/*.zip
+          dist_electron/*.exe
+          dist_electron/*.AppImage
+          dist_electron/*.dmg
+    
