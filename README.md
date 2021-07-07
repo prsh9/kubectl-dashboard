@@ -30,3 +30,8 @@ Built using the following :
 yarn electron:build <options>
 
 
+---
+ 
+Support my work. Buy me a coffee
+
+<a href="https://www.buymeacoffee.com/prsh9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174"></a>
