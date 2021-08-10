@@ -4,7 +4,7 @@
     <v-divider></v-divider>
     <v-card-text class="overflow-auto text-no-wrap">
       <v-progress-circular indeterminate v-if="loading"></v-progress-circular>
-      <ObjectView v-else :objData="resourceData"></ObjectView>
+      <TreeView v-else :data="resourceData" max-depth="100"></TreeView>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions>
@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import ObjectView from "./ObjectView.vue";
+import TreeView from "./TreeView.vue";
 import { capitalCase } from 'capital-case';
 
 export default {
@@ -52,7 +52,7 @@ export default {
     }
   },
   components: {
-    ObjectView
+    TreeView
   }
 };
 </script>
