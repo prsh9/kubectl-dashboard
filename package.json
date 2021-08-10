@@ -25,6 +25,7 @@
     "axios": "^0.21.1",
     "capital-case": "^1.0.4",
     "kubernetes-client": "^9.0.0",
+    "lodash": "4.17",
     "node-pty": "^0.10.1",
     "roboto-fontface": "*",
     "semver-compare": "^1.0.0",
