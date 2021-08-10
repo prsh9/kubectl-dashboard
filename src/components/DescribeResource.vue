@@ -5,7 +5,6 @@
     <v-card-text class="overflow-auto text-no-wrap">
       <v-progress-circular indeterminate v-if="loading"></v-progress-circular>
       <TreeView v-else :data="resourceData" max-depth="100"></TreeView>
-      <!-- <ObjectView  :objData=""></ObjectView> -->
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions>
