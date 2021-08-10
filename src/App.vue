@@ -16,7 +16,11 @@
     <v-app-bar app clipped-left color="teal lighten-1" class="text--lighten-5">
       <v-toolbar-title>Kube Dev Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-app-bar-nav-icon color="lighten-5" @click="aboutScreen = true"><v-icon>mdi-information-outline</v-icon></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon color="lighten-5" @click="aboutScreen = true">
+        <v-badge bottom dot overlap color="yellow" :value="updateInfo.updateAvailable">
+          <v-icon>mdi-information-outline</v-icon>
+        </v-badge>
+      </v-app-bar-nav-icon>
     </v-app-bar>
     
     <!-- Sizes your content based upon application components -->
@@ -38,11 +42,18 @@
 </template>
 
 <script>
+
+import { checkForUpdates, getCurrentVersion } from './js/helpers';
+
 import Home from "./components/Home.vue";
 import Setting from "./components/Setting.vue";
 import ConsoleGroups from './components/ConsoleGroups.vue'
 import LogGroups from './components/LogGroups.vue';
 import About from './components/About.vue';
+
+
+import ElectronStore from 'electron-store'
+const store = new ElectronStore();
 
 import VueRouter from "vue-router";
 
@@ -62,12 +73,52 @@ export default {
     return {
       drawer: null,
       aboutScreen: false,
+      updateInfo: {
+        updateAvailable: false,
+      },
       menuItems: [
         { icon: "home", title: "Home", link: "/" },
         { icon: "math-log", title: "Log Group", link: "/log" },
         { icon: "console", title: "Console Group", link: "/console" },
       ]
     };
+  },
+  created() {
+    this.updateChecker()
+  },
+  methods: {
+    updateChecker: function() {
+      var updateAvailableConfig = store.get("update.updateAvailable", false)
+      this.updateInfo.updateAvailable = updateAvailableConfig;
+
+      var currentVersion = getCurrentVersion()
+      currentVersion = "v" + currentVersion
+      var latestVersionConfig = store.get("update.latestVersion", currentVersion)
+      
+      if(currentVersion == latestVersionConfig) {
+        this.updateInfo.updateAvailable = false;
+        store.set("update.updateAvailable", false)
+      }
+
+      var lastCheckedConfig = store.get("update.lastChecked", 0)
+      console.log("Update last checked " + lastCheckedConfig)
+      var lastChecked = new Date(lastCheckedConfig)
+      lastChecked.setDate(lastChecked.getDate() + 1)
+      
+      var nowTime = Date.now()
+      if(lastChecked < nowTime) {
+        console.log("****** Checking for updates")
+        var vm = this;
+        checkForUpdates().then((res) => {
+          vm.updateInfo.updateAvailable = res.is_upgrade
+          store.set("update.lastChecked", nowTime)
+          store.set("update.updateAvailable", res.is_upgrade)
+          store.set("update.latestVersion", res.latest_version)
+        }, (err) => {
+          console.log("Error Checking for updates : " + err)
+        })
+      }
+    }
   },
   components: {
     About

@@ -52,5 +52,6 @@ Many more coming soon ...
 
 ## Support
 
-Support my work. Buy me a coffee -
+Support my work. Contribute (See the *Contribution Guidelines* in the github repo) or you can also buy me a coffee -
+
 <a href="https://www.buymeacoffee.com/prsh9" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174"></a>
