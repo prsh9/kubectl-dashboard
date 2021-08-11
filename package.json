@@ -1,6 +1,6 @@
 {
   "name": "kube-dev-dashboard",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Dev Desktop Client for KubeCtl",
   "author": {
     "name": "PS"
