@@ -15,6 +15,9 @@
         <v-btn icon x-small class="btn-margin" @click="clearConsole" title="Clear Screen">
           <v-icon>mdi-close</v-icon>
         </v-btn>
+        <v-btn icon x-small class="btn-margin" @click="exportToFile" title="Save To File">
+          <v-icon>mdi-file-download</v-icon>
+        </v-btn>
         <v-btn icon x-small class="btn-margin" @click="wrapChange" title="Wrap">
           <v-icon>{{ wrap ? "mdi-format-text-wrapping-wrap" : "mdi-format-text-wrapping-overflow" }}</v-icon>
         </v-btn>
@@ -40,6 +43,10 @@ import * as ace from "ace-builds/src-min-noconflict/ace";
 import {} from "ace-builds/webpack-resolver";
 
 import * as helper from '../js/helpers.js';
+
+import { remote } from 'electron';
+
+import * as fs from 'fs';
 
 export default {
   props: {
@@ -148,10 +155,6 @@ export default {
       var sess = this.editor.session;
       sess.insert({ row: sess.getLength(), column: 0 }, data.toString() );
     },
-    wrapChange: function() {
-      this.wrap = !this.wrap
-      this.editor.session.setUseWrapMode(this.wrap);
-    },
     close: function() {
       this.resizeObserver.disconnect();
       this.editor.destroy();
@@ -164,6 +167,29 @@ export default {
     clearConsole: function() {
       this.editor.setValue("");
       this.$forceUpdate();
+    },
+    exportToFile: async function() {
+      var options = {
+          title: "Export Log",
+          defaultPath : this.logDetails.podName + "-" + new Date().toISOString().slice(0, 10) + ".txt",
+          buttonLabel : "Export",
+
+          filters :[
+              {name: 'txt', extensions: ['txt']},
+              {name: 'log', extensions: ['log']},
+              {name: 'All Files', extensions: ['*']}
+          ]
+      };
+
+      var saveDiag = await remote.dialog.showSaveDialog(null, options);
+      if(!saveDiag.canceled) {
+        var path = saveDiag.filePath;
+        fs.writeFileSync(path, this.editor.session.toString(), 'utf-8');
+      }
+    },
+    wrapChange: function() {
+      this.wrap = !this.wrap
+      this.editor.session.setUseWrapMode(this.wrap);
     },
     scrollBottom: function() {
       this.editor.scrollToLine(this.editor.session.getLength(), false, true, null)
