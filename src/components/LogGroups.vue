@@ -40,6 +40,15 @@ export default {
       logs: 'getOpenLogs',
     }),
   },
+  activated() {
+    if(this.$route.query && this.$route.query.select) {
+      var select = this.$route.query.select;
+      if(select == -1) {
+        select = this.logs.length - 1
+      }
+      this.selectedTab = select
+    }
+  },
   methods: {
     close: function(item) {
       this.$store.dispatch("podData/closeLog", item)

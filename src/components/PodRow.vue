@@ -215,7 +215,7 @@ export default {
     },
     viewLogsAction: function() {
       this.$store.dispatch("podData/openLog", { podUid: this.row.metadata.uid });
-      this.$router.push("/log")
+      this.$router.push("/log?select=-1")
     },
     describeAction: function() {
       this.dialog = true;
@@ -226,7 +226,7 @@ export default {
     openConsoleUsing: function() {
       this.shellSelection = false;
       this.$store.dispatch("podData/openConsole", { podUid: this.row.metadata.uid, shellType: this.shellSelectionText });
-      this.$router.push("/console")
+      this.$router.push("/console?select=-1")
     }
   },
   components: {
