@@ -12,23 +12,21 @@
       <v-app-bar flat dense>
         <v-spacer></v-spacer>
 
-        <v-btn icon x-small class="btn-margin" @click="clearConsole">
+        <v-btn icon x-small class="btn-margin" @click="clearConsole" title="Clear Screen">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <v-btn icon x-small class="btn-margin" @click="wrap = !wrap">
+        <v-btn icon x-small class="btn-margin" @click="wrapChange" title="Wrap">
           <v-icon>{{ wrap ? "mdi-format-text-wrapping-wrap" : "mdi-format-text-wrapping-overflow" }}</v-icon>
         </v-btn>
-        <v-btn icon x-small class="btn-margin" @click="scrollBottom">
+        <v-btn icon x-small class="btn-margin" @click="scrollBottom" title="Scroll To End">
           <v-icon>mdi-format-vertical-align-bottom</v-icon>
         </v-btn>
-        <v-btn icon x-small class="btn-margin" @click="refresh">
+        <v-btn icon x-small class="btn-margin" @click="refresh" title="Refresh">
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
       </v-app-bar>
       <v-card flat class="overflow-y-auto logsheet">
-        <v-card-text id="logWindow" ref="logwindow">
-          <pre v-if="!connected">{{ errMessage }}</pre>
-          <pre v-else :class="[wrap ? 'my-text-wrap' : 'my-text-no-wrap']" v-for="(text, index) in logdata" :key="text + '=' + index">{{ text }}</pre>
+        <v-card-text id="logWindow" class="logwindow" ref="logwindow">
         </v-card-text>
       </v-card>
     </v-card>
@@ -37,6 +35,9 @@
 
 <script>
 let stream = null;
+
+import * as ace from "ace-builds/src-min-noconflict/ace";
+import {} from "ace-builds/webpack-resolver";
 
 import * as helper from '../js/helpers.js';
 
@@ -48,14 +49,17 @@ export default {
   },
   data() {
     return {
-      logdata: [],
       connected: false,
-      addTimestamps: false,
       errMessage: "",
-      wrap: true,
-      currContainer: "",
+      
+      addTimestamps: false,
+      
       num_containers: 0,
+      currContainer: "",
+      
+      wrap: false,
       resizeObserver: ResizeObserver,
+      editor: null
     };
   },
   computed: {
@@ -77,6 +81,7 @@ export default {
     },
   },
   mounted() {
+    this.initAceEditor();
     this.init();
   },
   beforeDestroy() {
@@ -96,6 +101,14 @@ export default {
       this.resizeObserver.observe(this.$refs.logwindow)
 
       this.startLogging();
+    },
+    initAceEditor: function() {
+      this.editor = ace.edit("logWindow", {
+        autoScrollEditorIntoView: true,
+      });
+      this.editor.setReadOnly(true);
+      this.editor.session.setUseWrapMode(this.wrap);
+      this.editor.resize();
     },
     containerChanged: function(element) {
       this.currContainer = element;
@@ -132,36 +145,28 @@ export default {
       this.clearConsole();
     },
     addLog: function(data) {
-      if (this.logdata.length > 100000) {
-        this.logdata.splice(0, 500);
-      }
-      this.logdata.push(data);
+      var sess = this.editor.session;
+      sess.insert({ row: sess.getLength(), column: 0 }, data.toString() );
+    },
+    wrapChange: function() {
+      this.wrap = !this.wrap
+      this.editor.session.setUseWrapMode(this.wrap);
     },
     close: function() {
       this.resizeObserver.disconnect();
+      this.editor.destroy();
     },
     checkResize: function(event) {
-      for (let entry of event) {
-        if(entry.contentRect && entry.contentRect.height > 0) {
-          var i = this.$refs.logwindow
-          if(i) {
-            var windowHeight = window.innerHeight - 250
-            var windowWidth = window.innerWidth - 120
-            if(this.num_containers > 1) {
-              windowHeight -= 66
-            }
-            i.style.maxHeight = windowHeight + "px"
-            i.style.maxWidth = windowWidth + "px"
-          }
-        }
+      if(event) {
+        this.editor.resize()
       }
     },
     clearConsole: function() {
-      this.logdata.length = 0;
+      this.editor.setValue("");
       this.$forceUpdate();
     },
     scrollBottom: function() {
-      this.$refs.logwindow.lastChild.scrollIntoView();
+      this.editor.scrollToLine(this.editor.session.getLength(), false, true, null)
     },
     refresh: function() {
       this.stopLogging();
@@ -201,7 +206,8 @@ export default {
   white-space: nowrap;
 }
 .logsheet {
-  background-color: floralwhite;
+  display: flex;
+  height: 100%;
 }
 .select-margin{
   margin-left: 10px;
@@ -217,5 +223,6 @@ export default {
 .parentcard {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 </style>
