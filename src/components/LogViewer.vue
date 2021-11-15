@@ -29,7 +29,7 @@
         </v-btn>
       </v-app-bar>
       <v-card flat class="overflow-y-auto logsheet">
-        <v-card-text id="logWindow" class="logwindow" ref="logwindow">
+        <v-card-text class="logwindow" ref="logwindow">
         </v-card-text>
       </v-card>
     </v-card>
@@ -110,7 +110,7 @@ export default {
       this.startLogging();
     },
     initAceEditor: function() {
-      this.editor = ace.edit("logWindow", {
+      this.editor = ace.edit(this.$refs.logwindow, {
         autoScrollEditorIntoView: true,
       });
       this.editor.setReadOnly(true);
