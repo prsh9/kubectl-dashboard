@@ -1,6 +1,5 @@
 <template>
   <tr>
-    <td class="minimal_pad">{{ pod_namespace }}</td>
     <td>{{ pod_name }}</td>
     <td class="minimal_pad">
       <div class="min_w_h">
@@ -30,6 +29,7 @@
       <v-chip outlined ripple :color="pod_status_color">{{ pod_status_message }}</v-chip>
     </td>
     <td>{{ pod_pod_ip }}</td>
+    <td>{{ pod_age }}</td>
     <td>
       <v-menu left offset-y open-on-click>
         <template v-slot:activator="{ on }">
@@ -41,13 +41,13 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-dialog scrollable persistent v-model="dialog">
+      <v-dialog scrollable persistent v-model="describeDialog">
         <!-- v-if is necessary to mount every time dialog is opened -->
         <DescribeResource
-          v-if="dialog"
+          v-if="describeDialog"
           resourceType="pod"
           :resourceUID="row.metadata.uid"
-          @close="dialog = false"
+          @close="describeDialog = false"
         ></DescribeResource>
       </v-dialog>
       <v-dialog v-model="shellSelection" max-width="400px">
@@ -71,6 +71,23 @@
 
 <script>
 import DescribeResource from "./DescribeResource.vue";
+import * as humanize from 'humanize-duration';
+
+const shortEnglishHumanizer = humanize.humanizer({
+  language: "shortEn",
+  languages: {
+    shortEn: {
+      y: () => "y",
+      mo: () => "mo",
+      w: () => "w",
+      d: () => "d",
+      h: () => "h",
+      m: () => "m",
+      s: () => "s",
+      ms: () => "ms",
+    },
+  },
+});
 
 export default {
   props: {
@@ -80,7 +97,7 @@ export default {
   },
   data() {
     return {
-      dialog: false,
+      describeDialog: false,
       shellSelection: false,
       shellSelectionText: "bash",
       actions: [
@@ -106,6 +123,10 @@ export default {
   computed: {
     pod_name: function() {
       return this.row.metadata.name;
+    },
+    pod_age: function() {
+      return shortEnglishHumanizer(Date.now() - Date.parse(this.row.status.startTime), { spacer: "", largest: 2, round: true, delimiter: "", serialComma: false });
+      
     },
     pod_namespace: function() {
       return this.row.metadata.namespace;
@@ -211,21 +232,21 @@ export default {
   },
   methods: {
     deleteAction: function() {
-      this.$store.dispatch("podData/deletePod", this.row.metadata.uid);
+      this.$store.dispatch("k8Data/deletePod", this.row.metadata.uid);
     },
     viewLogsAction: function() {
-      this.$store.dispatch("podData/openLog", { podUid: this.row.metadata.uid });
+      this.$store.dispatch("k8Data/openLog", { podUid: this.row.metadata.uid });
       this.$router.push("/log?select=-1")
     },
     describeAction: function() {
-      this.dialog = true;
+      this.describeDialog = true;
     },
     openConsoleAction: function() {
       this.shellSelection = true;
     },
     openConsoleUsing: function() {
       this.shellSelection = false;
-      this.$store.dispatch("podData/openConsole", { podUid: this.row.metadata.uid, shellType: this.shellSelectionText });
+      this.$store.dispatch("k8Data/openConsole", { podUid: this.row.metadata.uid, shellType: this.shellSelectionText });
       this.$router.push("/console?select=-1")
     }
   },

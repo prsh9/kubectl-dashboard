@@ -1,17 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" expand-on-hover clipped hide-overlay app permanent>
-      <v-list nav dense>
-        <v-list-item-group mandatory active-class="teal--text text--accent-4">
-          <v-list-item v-for="item in menuItems" :key="item.title" :to="item.link">
-            <v-list-item-icon>
-              <v-icon>mdi-{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer>
+    <NavDrawer></NavDrawer>
 
     <v-app-bar app clipped-left color="teal lighten-1" class="text--lighten-5">
       <v-toolbar-title>Kube Dev Dashboard</v-toolbar-title>
@@ -45,11 +34,14 @@
 
 import { checkForUpdates, getCurrentVersion } from './js/helpers';
 
-import Home from "./components/Home.vue";
-import Setting from "./components/Setting.vue";
-import ConsoleGroups from './components/ConsoleGroups.vue'
-import LogGroups from './components/LogGroups.vue';
-import About from './components/About.vue';
+import NavDrawer from "./components/main/NavDrawer.vue"
+import DisplayNamespace from "./components/DisplayNamespace.vue"
+import DisplayPodData from "./components/DisplayPodData.vue"
+import DisplaySvcData from "./components/DisplaySvcData.vue"
+import Setting from "./components/main/Setting.vue";
+import ConsoleGroups from './components/console/ConsoleGroups.vue'
+import LogGroups from './components/log/LogGroups.vue';
+import About from './components/main/About.vue';
 
 
 import ElectronStore from 'electron-store'
@@ -59,7 +51,9 @@ import VueRouter from "vue-router";
 
 const router = new VueRouter({
   routes: [
-    { path: "/", component: Home },
+    { path: "/namespace", component: DisplayNamespace },
+    { path: "/pod", component: DisplayPodData },
+    { path: "/svc", component: DisplaySvcData },
     { path: "/setting", component: Setting },
     { path: "/log", component: LogGroups },
     { path: "/console", component: ConsoleGroups },
@@ -76,11 +70,6 @@ export default {
       updateInfo: {
         updateAvailable: false,
       },
-      menuItems: [
-        { icon: "home", title: "Home", link: "/" },
-        { icon: "math-log", title: "Log Group", link: "/log" },
-        { icon: "console", title: "Console Group", link: "/console" },
-      ]
     };
   },
   created() {
@@ -121,7 +110,8 @@ export default {
     }
   },
   components: {
-    About
+    About,
+    NavDrawer
   }
 };
 </script>

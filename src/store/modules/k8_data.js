@@ -1,7 +1,10 @@
 import Vue from 'vue';
 
 const kubeclient = require("kubernetes-client");
-const client = new kubeclient.Client1_13();
+
+let client = new kubeclient.Client1_13();
+var podStream = null;
+var svcStream = null;
 
 function kubeDataSortComparison(a, b) {
   if(a.metadata.namespace == b.metadata.namespace) {
@@ -13,16 +16,60 @@ function kubeDataSortComparison(a, b) {
   return a.metadata.namespace.localeCompare(b.metadata.namespace);
 }
 
-function getKey(podItem) {
-  return podItem.metadata.uid;
+function getKey(itemData) {
+  return itemData.metadata.uid;
 }
 
-var podStream = null;
-var svcStream = null;
+function sortResource(resource, sorter = kubeDataSortComparison) {
+  var sorted = [];
+  if (state.status) {
+    sorted = Object.values(resource);
+    sorted.sort(sorter);
+  }
+  return sorted;
+}
 
+// helpers
+async function fetchResource(resourceToCall, commit, commitKey) {
+  return new Promise((resolve, reject) => {
+    resourceToCall.get().then(
+      res => {
+        var data = prepareData(res)
+        commit('setStatus', { connStatus: true, message: "Success" })
+        commit(commitKey, { data: data });
+        resolve();
+      },
+      err => {
+        console.log("Error (" + commitKey + ") " + err);
+        commit('setStatus', { connStatus: false, message: err });
+        reject();
+      }
+    );
+  });
+}
+
+function prepareData(res) {
+  var preparedData = {
+    items: {}
+  };
+  preparedData.metadata = res.body.metadata;
+  for (var item in res.body.items) {
+    var itemdata = res.body.items[item];
+    var objKey = getKey(itemdata);
+    preparedData.items[objKey] = itemdata;
+  }
+  return preparedData;
+}
+
+// state
 const state = {
   status: false,
   message: "Loading",
+  selectedNamespace: "default",
+  namespace_data: {
+    metadata: null, 
+    items: {} 
+  },
   pod_data: {
       metadata: null, 
       items: {} 
@@ -41,34 +88,34 @@ const state = {
 
 // getters
 const getters = {
-  getMessage: (state) => {
-    return state.message;
-  },
   getStatus: (state) => {
     return state.status;
   },
+  getMessage: (state) => {
+    return state.message;
+  },
+
+  getSelectedNamespace: (state) => {
+    return state.selectedNamespace;
+  },
+  orderedNamespaceItems: (state) => {
+    return sortResource(state.namespace_data.items);
+  },
+
   orderedPodItems: (state) => {
-    var sorted = [];
-    if (state.status) {
-      sorted = Object.values(state.pod_data.items);
-      sorted.sort(kubeDataSortComparison);
-    }
-    return sorted;
+    return sortResource(state.pod_data.items);
   },
   getPodData: (state) => (podUid) => {
     return state.pod_data.items[podUid];
-  },
+  }
+  ,
   orderedSvcItems: (state) => {
-    var sorted = [];
-    if (state.status) {
-      sorted = Object.values(state.svc_data.items);
-      sorted.sort(kubeDataSortComparison);
-    }
-    return sorted;
+    return sortResource(state.svc_data.items);
   },
   getSvcData: (state) => (svcUid) => {
     return state.svc_data.items[svcUid];
   },
+
   getOpenConsoles: (state) => {
     return state.open_consoles.items;
   },
@@ -79,6 +126,16 @@ const getters = {
 
 // actions
 const actions = {
+  fetchNamespaces: function({ commit }) {
+    return fetchResource(client.api.v1.namespaces, commit, 'setNamespaceData')
+  },
+  fetchPodData: function({ commit, getters }) {
+    return fetchResource(client.api.v1.namespaces(getters.getSelectedNamespace).pods, commit, 'setPodData')
+  },
+  fetchSvcData: function({ commit, getters }) {
+    return fetchResource(client.api.v1.namespaces(getters.getSelectedNamespace).services, commit, 'setSvcData')
+  },
+
   stopPodWatch: function() {
     return new Promise((resolve) => {
       if (podStream) {
@@ -88,32 +145,7 @@ const actions = {
       resolve();
     });
   },
-  fetchPodData: function({ commit }) {
-    return new Promise((resolve, reject) => {
-      client.api.v1.pods.get().then(
-        res => {
-          var podData = {
-            items: {} 
-          };
-          podData.metadata = res.body.metadata;
-          for (var item in res.body.items) {
-            var itemdata = res.body.items[item];
-            var objKey = getKey(itemdata);
   
-            podData.items[objKey] = itemdata;
-          }
-          
-          commit('setStatusAndPodData', {connStatus: true, message: "Success", podData: podData});
-          resolve();
-        },
-        err => {
-          console.log("Error (getPodData) " + err);
-          commit('setStatusAndPodData', { connStatus: false, message: err , podData: { metadata: null, items: {} }});
-          reject();
-        }
-      );
-    });    
-  },
   watchPodData: async function({ commit, state }) {
     var rv = state.pod_data.metadata.resourceVersion;
     podStream = await client.api.v1.watch.pods.getObjectStream({
@@ -150,6 +182,7 @@ const actions = {
       }
     });
   },
+
   deletePod: function({ state }, pod_uid) {
     var podToRemove = state.pod_data.items[pod_uid];
     if(podToRemove) {
@@ -158,32 +191,7 @@ const actions = {
       client.api.v1.namespaces(namespace).pods(name).delete();
     }
   },
-  fetchSvcData: function({ commit }) {
-    return new Promise((resolve, reject) => {
-      client.api.v1.services.get().then(
-        res => {
-          var svcData = {
-            items: {} 
-          };
-          svcData.metadata = res.body.metadata; 
-          for (var item in res.body.items) {
-            var itemdata = res.body.items[item];
-            var objKey = getKey(itemdata);
   
-            svcData.items[objKey] = itemdata;
-          }
-          
-          commit('setStatusAndSvcData', {connStatus: true, message: "Success", svcData: svcData});
-          resolve();
-        },
-        err => {
-          console.log("Error (getSvcData) " + err);
-          commit('setStatusAndSvcData', { connStatus: false, message: err , svcData: { metadata: null, items: {} }});
-          reject();
-        }
-      );
-    });    
-  },
   deleteSvc: function({ state }, svc_uid) {
     var svcToRemove = state.svc_data.items[svc_uid];
     if(svcToRemove) {
@@ -237,6 +245,7 @@ const actions = {
       }
     });
   },
+
   openConsole: function({ commit, getters }, { podUid, shellType } ) {
     var podSpec = getters.getPodData(podUid)
     commit('addOpenConsole', {podUid: podUid, podNamespace: podSpec.metadata.namespace, podName: podSpec.metadata.name, shellType: shellType })
@@ -244,6 +253,7 @@ const actions = {
   deleteOpenConsole: function({ commit }, index ) {
     commit('deleteOpenConsole', {index: index })
   },
+
   openLog: function({ commit, getters }, { podUid }) {
     var podSpec = getters.getPodData(podUid)
     commit('addOpenLog', {podUid: podUid, podNamespace: podSpec.metadata.namespace, podName: podSpec.metadata.name, podSpec: podSpec })
@@ -255,10 +265,21 @@ const actions = {
 
 // mutations
 const mutations = {
-  setStatusAndPodData (state, { connStatus, message, podData }) {
-      state.status = connStatus;
-      state.message = message;
-      Vue.set(state, 'pod_data', podData);
+  setStatus (state, { connStatus, message }) {
+    state.status = connStatus;
+    state.message = message;
+  },
+  setNamespaceData (state, { data }) {
+    Vue.set(state, 'namespace_data', data)
+  },
+  setSelectedNamespace (state, selectedNamespace) {
+    state.selectedNamespace = selectedNamespace;
+    var emptyData = {items: {}}
+    Vue.set(state, 'pod_data', emptyData);
+    Vue.set(state, 'svc_data', emptyData);
+  },
+  setPodData (state, { data }) {
+      Vue.set(state, 'pod_data', data);
   },
   setPodItem (state, podData) {
     Vue.set(state.pod_data.items, getKey(podData), podData);
@@ -266,10 +287,9 @@ const mutations = {
   deletePodItem(state, podData) {
     Vue.delete(state.pod_data.items, getKey(podData));
   },
-  setStatusAndSvcData (state, { connStatus, message, svcData }) {
-    state.status = connStatus;
-    state.message = message;
-    Vue.set(state, 'svc_data', svcData);
+
+  setSvcData (state, { data }) {
+    Vue.set(state, 'svc_data', data);
   },
   setSvcItem (state, svcData) {
     Vue.set(state.svc_data.items, getKey(svcData), svcData);
@@ -277,12 +297,14 @@ const mutations = {
   deleteSvcItem(state, svcData) {
     Vue.delete(state.svc_data.items, getKey(svcData));
   },
+
   addOpenConsole(state, { podUid, podNamespace, podName, shellType }) {
     state.open_consoles.items.push({podSpec: {podUid: podUid, podNamespace: podNamespace, podName: podName}, shellType: shellType})
   },
   deleteOpenConsole(state, { index }) {
     state.open_consoles.items.splice(index, 1)
   },
+
   addOpenLog(state, { podUid, podNamespace, podName, podSpec }) {
     state.open_logs.items.push({logDetails: {podUid: podUid, podNamespace: podNamespace, podName: podName, podSpec: podSpec}})
   },

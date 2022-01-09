@@ -72,6 +72,9 @@ export default {
       return this.row.spec.clusterIP;
     },
     svc_ports: function() {
+      if(this.row.spec.ports == undefined) {
+        return [];
+      }
       var port_details = this.row.spec.ports.reduce((port_arr, portInfo) => {
         var port_str = portInfo.port.toString();
         var link = "";
@@ -96,7 +99,7 @@ export default {
       this.dialog = true;
     },
     deleteAction: function() {
-      this.$store.dispatch("podData/deleteSvc", this.row.metadata.uid);
+      this.$store.dispatch("k8Data/deleteSvc", this.row.metadata.uid);
     },
   },
   components: {

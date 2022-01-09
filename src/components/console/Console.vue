@@ -21,7 +21,7 @@ import * as pty from 'node-pty';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { } from 'xterm/css/xterm.css';
-import * as helper from '../js/helpers.js';
+import * as helper from '../../js/helpers.js';
 
 export default {
   name: "Console",
