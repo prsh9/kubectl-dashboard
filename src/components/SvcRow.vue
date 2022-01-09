@@ -1,6 +1,5 @@
 <template>
   <tr>
-    <td class="minimal_pad">{{ svc_namespace }}</td>
     <td>{{ svc_name }}</td>
     <td>{{ svc_type }}</td>
     <td>{{ svc_cluster_ip }}</td>

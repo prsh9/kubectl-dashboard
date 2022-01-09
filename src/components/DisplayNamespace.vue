@@ -1,24 +1,19 @@
 <template>
   <div class="flexcontainer flex-grow-1">
-    <h2>Namespaces</h2>
-    <div class="flex-grow-1 border">
-      <v-radio-group ripple v-model="selectedNs" @change="shouldApplyChange">
+    <v-card tile flat>
+      <v-card-title class="pa-2">Namespaces</v-card-title>
+    </v-card>
+    <div class="pl-5">
+      <v-radio-group class="ma-1" ripple v-model="selectedNs" @change="shouldApplyChange">
         <v-radio v-for="item in namespaces" :key="item.metadata.uid" :label="item.metadata.name" :value="item.metadata.name" ripple>
         </v-radio>
       </v-radio-group>
-      <!-- <v-list nav dense>
-        <v-list-item-group>
-          <v-list-item v-for="item in namespaces" :key="item.uid" @click="updateItem">
-            <v-list-item-content>
-              {{ item }}
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list> -->
-      <v-btn :disabled="!changed" @click="updateItem" ripple tile outlined>
+    </div>
+    <v-footer inset app tile color="white" elevation="4" class="pa-4">
+      <v-btn :disabled="!changed" @click="updateItem" ripple tile color="teal lighten-1">
         Apply
       </v-btn>
-    </div>
+    </v-footer>
   </div>
 </template>
         
@@ -42,27 +37,25 @@ export default {
       namespaces: 'orderedNamespaceItems',
     }),
   },
-  mounted() {
-    console.log("called")
-    this.init();
-  },
   activated() {
-    console.log("activated")
-    this.timerEvent = setTimeout(this.init, 5000)
+    this.init();
+    this.selectedNs = this.$store.getters['k8Data/getSelectedNamespace']
   },
   deactivated() {
-    console.log("deactivated")
     clearTimeout(this.timerEvent);
+    this.timerEvent = null;
+  },
+  beforeDestroy() {
+    clearTimeout(this.timerEvent);
+    this.timerEvent = null;
   },
   methods: {
     init: async function() {
-      console.log("Init")
       return this.$store.dispatch('k8Data/fetchNamespaces').then(() => {
-        this.selectedNs = this.$store.getters['k8Data/getSelectedNamespace']
-      })
+        this.timerEvent = setTimeout(this.init, 10000)
+      });
     },
     updateItem: function() {
-      console.log("clicked")
       this.$store.commit('k8Data/setSelectedNamespace', this.selectedNs)
     },
     shouldApplyChange: function() {

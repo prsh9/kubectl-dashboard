@@ -57,6 +57,7 @@ const router = new VueRouter({
     { path: "/setting", component: Setting },
     { path: "/log", component: LogGroups },
     { path: "/console", component: ConsoleGroups },
+    { path: "/", redirect: "/pod" },
   ]
 });
 

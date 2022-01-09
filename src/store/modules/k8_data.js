@@ -146,11 +146,12 @@ const actions = {
     });
   },
   
-  watchPodData: async function({ commit, state }) {
+  watchPodData: async function({ commit, state, getters }) {
     var rv = state.pod_data.metadata.resourceVersion;
-    podStream = await client.api.v1.watch.pods.getObjectStream({
+    podStream = await client.api.v1.watch.namespaces(getters.getSelectedNamespace).pods.getObjectStream({
       qs: {
         resourceVersion: rv,
+        watch: rv
       }
     });
 
@@ -200,6 +201,7 @@ const actions = {
       client.api.v1.namespaces(namespace).services(name).delete();
     }
   },
+
   stopSvcWatch: function() {
     return new Promise((resolve) => {
       if (svcStream) {
@@ -209,9 +211,10 @@ const actions = {
       resolve();
     });
   },
-  watchSvcData: async function({ commit, state }) {
+
+  watchSvcData: async function({ commit, state, getters }) {
     var rv = state.svc_data.metadata.resourceVersion;
-    svcStream = await client.api.v1.watch.services.getObjectStream({
+    svcStream = await client.api.v1.watch.namespaces(getters.getSelectedNamespace).services.getObjectStream({
       qs: {
         resourceVersion: rv,
       }
