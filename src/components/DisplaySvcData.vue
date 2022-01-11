@@ -61,22 +61,18 @@ export default {
       await this.$store.dispatch('k8Data/stopSvcWatch').then(() => {
         return this.$store.dispatch('k8Data/fetchSvcData')
         }).then(() => {
-          this.startRefresher();
           return this.$store.dispatch('k8Data/watchSvcData');
         },
         (rej) => {
           console.log("Error" + rej);
         }
-      );
-    },
-    startRefresher: function() {
-      this.timerInterval = setTimeout(this.performRefresh, 10000);
-    },
-    performRefresh: function() {
-      this.init().then(() => {
+      ).finally(() => {
         this.startRefresher();
       });
-    }
+    },
+    startRefresher: function() {
+      this.timerInterval = setTimeout(this.init, 10000);
+    },
   },
   components: {
     SvcRow

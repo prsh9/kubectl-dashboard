@@ -280,6 +280,8 @@ const mutations = {
     var emptyData = {items: {}}
     Vue.set(state, 'pod_data', emptyData);
     Vue.set(state, 'svc_data', emptyData);
+    state.open_consoles.items.splice(0, state.open_consoles.items.length);
+    state.open_logs.items.splice(0, state.open_logs.items.length);
   },
   setPodData (state, { data }) {
       Vue.set(state, 'pod_data', data);

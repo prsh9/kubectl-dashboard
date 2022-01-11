@@ -1,0 +1,9 @@
+/* Style */
+.v-popper--theme-tooltip .v-popper__inner {
+  background: rgba(207, 207, 209, 0.71);
+  color: #000000;
+  padding: 5px;
+  font-family: monospace;
+  font-size: medium;
+  border-radius: 5px;
+}

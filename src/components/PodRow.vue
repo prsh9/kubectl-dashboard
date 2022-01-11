@@ -1,6 +1,6 @@
 <template>
   <tr>
-    <td>{{ pod_name }}</td>
+    <td class="name_css">{{ pod_name }}</td>
     <td class="minimal_pad">
       <div class="min_w_h">
         <v-progress-linear
@@ -29,7 +29,7 @@
       <v-chip outlined ripple :color="pod_status_color">{{ pod_status_message }}</v-chip>
     </td>
     <td>{{ pod_pod_ip }}</td>
-    <td>{{ pod_age }}</td>
+    <td v-tooltip="{ content: this.pod_age_full }">{{ pod_age }}</td>
     <td>
       <v-menu left offset-y open-on-click>
         <template v-slot:activator="{ on }">
@@ -124,9 +124,11 @@ export default {
     pod_name: function() {
       return this.row.metadata.name;
     },
+    pod_age_full: function() {
+      return new Date(this.row.status.startTime).toString();
+    },
     pod_age: function() {
       return shortEnglishHumanizer(Date.now() - Date.parse(this.row.status.startTime), { spacer: "", largest: 2, round: true, delimiter: "", serialComma: false });
-      
     },
     pod_namespace: function() {
       return this.row.metadata.namespace;
@@ -256,7 +258,10 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+.name_css {
+  max-width: 40vw;
+}
 .status_css {
   text-align: center;
   min-width: 150px;
@@ -266,7 +271,7 @@ export default {
 }
 .min_w_h {
   min-width: 130px;
-  width: fit-content;
+  width: 100%;
   display: flex;
   flex-direction: row;
 }

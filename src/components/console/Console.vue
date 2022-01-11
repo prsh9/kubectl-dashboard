@@ -3,10 +3,10 @@
     <v-app-bar short color="white" flat dense class="appbar-console">
       <h1>Shell {{ podSpec.podNamespace }}/{{ podSpec.podName }}</h1>
       <div class="appbar-btns">
-        <v-btn icon small class="btn-margin" @click="onResize">
+        <v-btn icon small class="btn-margin" @click="onResize" title="Resize">
           <v-icon>mdi-fit-to-page</v-icon>
         </v-btn>
-        <v-btn icon small class="btn-margin" @click="refresh">
+        <v-btn icon small class="btn-margin" @click="refresh" title="Refresh">
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
       </div>

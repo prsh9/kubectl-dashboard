@@ -68,21 +68,17 @@ export default {
       await this.$store.dispatch('k8Data/stopPodWatch').then(() => {
           return this.$store.dispatch('k8Data/fetchPodData')
         }).then(() => {
-          this.startRefresher();
           return this.$store.dispatch('k8Data/watchPodData');
         },
         (rej) => {
           console.log("Error" + rej);
         }
-      );
-    },
-    startRefresher: function() {
-      this.timeoutInstance = setTimeout(this.performRefresh, 60000);
-    },
-    performRefresh: function() {
-      this.init().then(() => {
+      ).finally(() => {
         this.startRefresher();
       });
+    },
+    startRefresher: function() {
+      this.timeoutInstance = setTimeout(this.init, 60000);
     },
   },
   components: {
