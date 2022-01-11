@@ -3,7 +3,7 @@
         <v-container class="about-border">
         <v-row align="center" justify="center" no-gutters>
             <v-col cols="12">
-                <v-img @click="openHome" class="mx-auto hover-arrow" max-width="210px" max-height="210px" contain src="../assets/logo.png"></v-img>
+                <v-img @click="openHome" class="mx-auto hover-arrow" max-width="210px" max-height="210px" contain src="../../assets/logo.png"></v-img>
                 <v-card-title @click="openHome" class="text-h4 justify-center hover-arrow">{{ title }}</v-card-title>
                 <v-card-subtitle class="text-subtitle-1 text-center">{{ description }}</v-card-subtitle>
                 <v-spacer></v-spacer>
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { checkForUpdates, getCurrentVersion } from '../js/helpers';
+import { checkForUpdates, getCurrentVersion } from '../../js/helpers';
 import { shell } from 'electron';
 
 export default {

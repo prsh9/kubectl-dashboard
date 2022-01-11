@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import pod_data from './modules/pod_data'
+import k8_data from './modules/k8_data'
 
 Vue.use(Vuex)
 
@@ -8,9 +8,9 @@ const debug = process.env.NODE_ENV !== 'production'
 
 export default new Vuex.Store({
   modules: {
-    podData: {
+    k8Data: {
       namespaced: true,
-      ...pod_data
+      ...k8_data
     }
   },
   strict: debug

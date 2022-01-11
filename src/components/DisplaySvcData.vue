@@ -1,7 +1,10 @@
 <template>
   <div id="k8_svc_parent">
+    <div>
+      <h3>Services in namespace '{{ selectedNamespace }}'</h3>
+    </div>
     <div id="svc_content" v-show="status">
-      <v-simple-table fixed-header>
+      <v-simple-table dense fixed-header>
         <thead>
           <tr>
             <th class="row-head-centered" v-for="header in tableHeaders" :key="header">{{ header }}</th>
@@ -24,59 +27,52 @@
 import SvcRow from './SvcRow.vue'
 import { createNamespacedHelpers } from 'vuex'
 
-const { mapGetters } = createNamespacedHelpers('podData')
+const { mapGetters } = createNamespacedHelpers('k8Data')
 
 export default {
   data() {
     return {
-      tableHeaders: ["NameSpace", "Name", "Type", "ClusterIP", "Ports", "Actions"],
-      refresh: false
+      tableHeaders: ["Name", "Type", "ClusterIP", "Ports", "Actions"],
+      refresh: false,
+      timerInterval: null,
     };
   },
   computed: {
     ...mapGetters({
       message: 'getMessage',
       status: 'getStatus',
-      svcItems: 'orderedSvcItems'
+      svcItems: 'orderedSvcItems',
+      selectedNamespace: 'getSelectedNamespace'
     }),
   },
-  created() {
-    this.init();
+  activated() {
+    this.init()
   },
-  mounted() {
-    this.startRefresher();
-    this.refresh = true;
+  deactivated() {
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
   },
   beforeDestroy() {
-    this.refresh = false;
+    clearInterval(this.timerInterval)
+    this.timerInterval = null;
   },
   methods: {
     init: async function() {
-      // console.log("Start init")
-      await this.$store.dispatch('podData/stopSvcWatch').then(() => {
-        return this.$store.dispatch('podData/fetchSvcData')
+      await this.$store.dispatch('k8Data/stopSvcWatch').then(() => {
+        return this.$store.dispatch('k8Data/fetchSvcData')
         }).then(() => {
-          return this.$store.dispatch('podData/watchSvcData');
+          return this.$store.dispatch('k8Data/watchSvcData');
         },
         (rej) => {
           console.log("Error" + rej);
         }
-      );
-      // console.log("Finish init")
+      ).finally(() => {
+        this.startRefresher();
+      });
     },
     startRefresher: function() {
-      setTimeout(this.performRefresh, 10000);
+      this.timerInterval = setTimeout(this.init, 10000);
     },
-    performRefresh: function() {
-      // console.log("Start Refresh")
-      this.init().then(() => {
-        if(this.refresh) {
-          // console.log("Restarting Refresh")
-          this.startRefresher();
-        }
-      });
-      // console.log("Finish Refresh")
-    }
   },
   components: {
     SvcRow

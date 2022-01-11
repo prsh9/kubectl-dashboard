@@ -42,7 +42,7 @@ let stream = null;
 import * as ace from "ace-builds/src-min-noconflict/ace";
 import {} from "ace-builds/webpack-resolver";
 
-import * as helper from '../js/helpers.js';
+import * as helper from '../../js/helpers.js';
 
 import { remote } from 'electron';
 

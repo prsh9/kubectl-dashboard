@@ -1,10 +1,13 @@
 <template>
   <div id="k8_pod_parent">
+    <div>
+      <h3>Pods in namespace '{{ selectedNamespace }}'</h3>
+    </div>
     <div id="pod_content" v-show="status">
       <v-simple-table dense fixed-header>
         <thead>
           <tr>
-            <th class="row-head-centered" v-for="header in tableHeaders" :key="header">{{ header }}</th>
+            <th class="row-head-centered" v-for="header in tableHeaders" :key="header.name" :style="header.style">{{ header.name }}</th>
           </tr>
         </thead>
         <tbody>
@@ -24,58 +27,58 @@
 import PodRow from "./PodRow.vue";
 import { createNamespacedHelpers } from 'vuex'
 
-const { mapGetters } = createNamespacedHelpers('podData')
+const { mapGetters } = createNamespacedHelpers('k8Data')
 
 export default {
   data() {
     return {
-      tableHeaders: ["NameSpace", "Name", "Containers", "Status", "Pod IP", "Actions"],
-      refresh: false
+      tableHeaders: [ 
+          { name: "Name" }, 
+          { name: "Containers" }, 
+          { name: "Status", style: "text-align: center" }, 
+          { name: "Pod IP" }, 
+          { name: "Age" }, 
+          { name: "Actions" }
+      ],
+      refresh: false,
+      timeoutInstance: null
     };
   },
   computed: {
     ...mapGetters({
       message: 'getMessage',
       status: 'getStatus',
-      podItems: 'orderedPodItems'
+      podItems: 'orderedPodItems',
+      selectedNamespace: 'getSelectedNamespace'
     }),
   },
-  created() {
+  activated() {
     this.init();
   },
-  mounted() {
-    this.startRefresher();
-    this.refresh = true;
+  deactivated() {
+    clearInterval(this.timeoutInstance)
+    this.timeoutInstance = null;
   },
   beforeDestroy() {
-    this.refresh = false;
+    clearInterval(this.timeoutInstance)
+    this.timeoutInstance = null;
   },
   methods: {
     init: async function() {
-      // console.log("Start init")
-      await this.$store.dispatch('podData/stopPodWatch').then(() => {
-        return this.$store.dispatch('podData/fetchPodData')
+      await this.$store.dispatch('k8Data/stopPodWatch').then(() => {
+          return this.$store.dispatch('k8Data/fetchPodData')
         }).then(() => {
-          return this.$store.dispatch('podData/watchPodData');
+          return this.$store.dispatch('k8Data/watchPodData');
         },
         (rej) => {
           console.log("Error" + rej);
         }
-      );
-      // console.log("Finish init")
+      ).finally(() => {
+        this.startRefresher();
+      });
     },
     startRefresher: function() {
-      setTimeout(this.performRefresh, 10000);
-    },
-    performRefresh: function() {
-      // console.log("Start Refresh")
-      this.init().then(() => {
-        if(this.refresh) {
-          // console.log("Restarting Refresh")
-          this.startRefresher();
-        }
-      });
-      // console.log("Finish Refresh")
+      this.timeoutInstance = setTimeout(this.init, 60000);
     },
   },
   components: {
@@ -83,3 +86,9 @@ export default {
   }
 };
 </script>
+
+<style>
+.row-head-centered {
+  text-align: center;
+}
+</style>

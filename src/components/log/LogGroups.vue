@@ -22,10 +22,10 @@
 </template>
 
 <script>
-import LogViewer from "./LogViewer.vue";
+import LogViewer from "../log/LogViewer.vue";
 import { createNamespacedHelpers } from 'vuex'
 
-const { mapGetters } = createNamespacedHelpers('podData')
+const { mapGetters } = createNamespacedHelpers('k8Data')
 
 export default {
   name: "LogGroups",
@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     close: function(item) {
-      this.$store.dispatch("podData/closeLog", item)
+      this.$store.dispatch("k8Data/closeLog", item)
     }
   },
   components: {
