@@ -32,10 +32,11 @@ function sortResource(resource, sorter = kubeDataSortComparison) {
 // helpers
 async function fetchResource(resourceToCall, commit, commitKey) {
   return new Promise((resolve, reject) => {
+    commit('setLoading')
     resourceToCall.get().then(
       res => {
         var data = prepareData(res)
-        commit('setStatus', { connStatus: true, message: "Success" })
+        commit('setStatus', { connStatus: true, message: "Connection Success" })
         commit(commitKey, { data: data });
         resolve();
       },
@@ -64,6 +65,7 @@ function prepareData(res) {
 // state
 const state = {
   status: false,
+  loading: true,
   message: "Loading",
   selectedNamespace: "default",
   namespace_data: {
@@ -90,6 +92,9 @@ const state = {
 const getters = {
   getStatus: (state) => {
     return state.status;
+  },
+  getLoading: (state) => {
+    return state.loading;
   },
   getMessage: (state) => {
     return state.message;
@@ -268,9 +273,13 @@ const actions = {
 
 // mutations
 const mutations = {
+  setLoading (state) {
+    state.loading = true;
+  },
   setStatus (state, { connStatus, message }) {
     state.status = connStatus;
     state.message = message;
+    state.loading = false;
   },
   setNamespaceData (state, { data }) {
     Vue.set(state, 'namespace_data', data)

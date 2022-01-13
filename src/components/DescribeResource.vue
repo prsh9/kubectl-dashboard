@@ -47,7 +47,7 @@ export default {
   },
   methods: {
     loadData: function() {
-      this.resourceData = this.$store.getters['podData/get' + capitalCase(this.resourceType) + 'Data'](this.resourceUID);
+      this.resourceData = this.$store.getters['k8Data/get' + capitalCase(this.resourceType) + 'Data'](this.resourceUID);
       this.loading = false;
     }
   },
