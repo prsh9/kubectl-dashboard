@@ -10,6 +10,18 @@
           <v-icon>mdi-information-outline</v-icon>
         </v-badge>
       </v-app-bar-nav-icon>
+      <VDropdown :offset="[-15, -10]">
+        <v-app-bar-nav-icon>
+          <!-- This will be the popover reference (for the events and position) -->
+          <v-icon class="indicator rounded-circle" :class="{ blink: loading }" :style="{ background: determineColor }" small dense></v-icon>
+        </v-app-bar-nav-icon>
+        <!-- This will be the content of the popover -->
+          <template #popper>
+            <v-card tile outlined>
+              <v-card-text class="low-padding">{{ message }}</v-card-text>
+            </v-card>
+          </template>
+      </VDropdown>
     </v-app-bar>
     
     <!-- Sizes your content based upon application components -->
@@ -43,7 +55,6 @@ import ConsoleGroups from './components/console/ConsoleGroups.vue'
 import LogGroups from './components/log/LogGroups.vue';
 import About from './components/main/About.vue';
 
-
 import ElectronStore from 'electron-store'
 const store = new ElectronStore();
 
@@ -61,6 +72,9 @@ const router = new VueRouter({
   ]
 });
 
+import { createNamespacedHelpers } from 'vuex'
+const { mapGetters } = createNamespacedHelpers('k8Data')
+
 export default {
   name: "App",
   router,
@@ -72,6 +86,24 @@ export default {
         updateAvailable: false,
       },
     };
+  },
+  computed: {
+    determineColor: function() {
+      var color = "radial-gradient(circle at 50% 50%, #eb321a, #eb321a, #ffffff)"
+      if(this.status) {
+        color = "radial-gradient(circle at 50% 50%, #1cf700, #49eb34, #ffffff)"
+      }
+      if(!this.status && this.loading) {
+        color = "radial-gradient(circle at 50% 50%, #e6df05, #e6df05, #ffffff)"
+      }
+      return color;
+    },
+    ...mapGetters({
+      message: 'getMessage',
+      status: 'getStatus',
+      loading: 'getLoading'
+    })
+
   },
   created() {
     this.updateChecker()
@@ -124,5 +156,23 @@ export default {
     align-items: stretch;
     height: 100%;
     min-height: 200px;
+  }
+  .indicator {
+    background-clip: content-box;
+    height: 10px !important;
+    width: 10px !important;
+    box-shadow: 0px 0px 15px 1px white;
+  }
+  .low-padding {
+    padding: 4px;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0.0;
+    }
+  }
+  .blink {
+    animation: blink 1s step-start 0s infinite;
   }
 </style>

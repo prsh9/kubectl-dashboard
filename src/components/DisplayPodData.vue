@@ -1,8 +1,8 @@
 <template>
   <div id="k8_pod_parent">
-    <div>
-      <h3>Pods in namespace '{{ selectedNamespace }}'</h3>
-    </div>
+    <v-card tile flat>
+      <v-card-title class="pa-2">Pods in namespace '{{ selectedNamespace }}'</v-card-title>
+    </v-card>
     <div id="pod_content" v-show="status">
       <v-simple-table dense fixed-header>
         <thead>
@@ -15,11 +15,9 @@
         </tbody>
       </v-simple-table>
     </div>
-    <div id="pod_err_content">
-      <div v-show="!status">
-        <p>{{ message }}</p>
-      </div>
-    </div>
+    <v-card v-if="!status" outlined class="flexcontainer flex-grow-1 justify-center">
+      <v-card-text>{{ message }}</v-card-text>
+    </v-card>
   </div>
 </template>
         
