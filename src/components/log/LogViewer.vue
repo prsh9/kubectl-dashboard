@@ -59,8 +59,6 @@ export default {
       connected: false,
       errMessage: "",
       
-      addTimestamps: false,
-      
       num_containers: 0,
       currContainer: "",
       
@@ -81,7 +79,7 @@ export default {
 
       if(pod_spec.spec.initContainers) {
         pod_spec.spec.initContainers.forEach(element => {
-          container_names.push(element.name);
+          container_names.push("(init) " + element.name);
         });
       }
       return container_names;
@@ -123,17 +121,13 @@ export default {
       this.startLogging();
     },
     startLogging: async function() {
-      const kubeclient = require("kubernetes-client");
-      const client = new kubeclient.Client1_13();
       try {
-        stream = await client.api.v1.namespaces(this.logDetails.podNamespace).pods(this.logDetails.podName).log.getByteStream({
-          qs: {
-            container: this.currContainer,
-            tailLines: 10000,
-            follow: true,
-            timestamps: this.addTimestamps
-          }
-        });
+        stream = await this.$store.dispatch('k8Data/getLogStream', 
+                                            {
+                                              podNamespace: this.logDetails.podNamespace, 
+                                              podName: this.logDetails.podName, 
+                                              currContainer: this.currContainer
+                                            });
         this.connected = true;
 
         stream.on("data", object => {
@@ -153,7 +147,7 @@ export default {
     },
     addLog: function(data) {
       var sess = this.editor.session;
-      sess.insert({ row: sess.getLength(), column: 0 }, data.toString() );
+      sess.insert({ row: sess.getLength(), column: 0 }, data.toString());
     },
     close: function() {
       this.resizeObserver.disconnect();
