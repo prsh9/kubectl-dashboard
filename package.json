@@ -26,6 +26,7 @@
     "axios": "^0.24.0",
     "capital-case": "^1.0.4",
     "electron-store": "^8.0.0",
+    "fix-path": "^3.0.0",
     "humanize-duration": "^3.27.1",
     "kubernetes-client": "^9.0.0",
     "lodash": "4.17",
