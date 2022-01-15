@@ -266,6 +266,16 @@ const actions = {
     var podSpec = getters.getPodData(podUid)
     commit('addOpenLog', {podUid: podUid, podNamespace: podSpec.metadata.namespace, podName: podSpec.metadata.name, podSpec: podSpec })
   },
+  getLogStream: async function(_, { podNamespace, podName, currContainer }) {
+    return client.api.v1.namespaces(podNamespace).pods(podName).log.getByteStream({
+      qs: {
+        container: currContainer,
+        tailLines: 10000,
+        follow: true,
+        timestamps: false
+      }
+    });
+  },
   closeLog: function({ commit }, index ) {
     commit('deleteOpenLog', {index: index })
   },
