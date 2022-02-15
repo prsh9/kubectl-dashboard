@@ -22,6 +22,7 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { } from 'xterm/css/xterm.css';
 import * as helper from '../../js/helpers.js';
+import { remote } from 'electron';
 
 export default {
   name: "Console",
@@ -62,7 +63,7 @@ export default {
       this.ptyProcess = pty.spawn(shell, [], {
         name: this.podSpec.podUid,
         cwd: os.homedir(),
-        env: process.env
+        env: remote.getGlobal('process').env
       });
 
       this.fitAddon.fit();
