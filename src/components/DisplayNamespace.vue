@@ -60,6 +60,7 @@ export default {
     },
     updateItem: function() {
       this.$store.commit('k8Data/setSelectedNamespace', this.selectedNs)
+      this.$router.push("/pod")
     },
     shouldApplyChange: function() {
       this.changed = true;
