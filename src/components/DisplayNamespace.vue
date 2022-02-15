@@ -21,6 +21,9 @@
 </template>
         
 <script>
+import ElectronStore from 'electron-store'
+const store = new ElectronStore();
+
 import { createNamespacedHelpers } from 'vuex'
 
 const { mapGetters } = createNamespacedHelpers('k8Data')
@@ -60,6 +63,7 @@ export default {
     },
     updateItem: function() {
       this.$store.commit('k8Data/setSelectedNamespace', this.selectedNs)
+      store.set("selected.namespace", this.selectedNs);
       this.$router.push("/pod")
     },
     shouldApplyChange: function() {

@@ -106,9 +106,14 @@ export default {
 
   },
   created() {
-    this.updateChecker()
+    this.setNamespace();
+    this.updateChecker();
   },
   methods: {
+    setNamespace: function() {
+      var namespace = store.get("selected.namespace", "default");
+      this.$store.commit('k8Data/setSelectedNamespace', namespace)
+    },
     updateChecker: function() {
       var updateAvailableConfig = store.get("update.updateAvailable", false)
       this.updateInfo.updateAvailable = updateAvailableConfig;
