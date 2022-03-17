@@ -12,20 +12,17 @@
       <v-app-bar flat dense>
         <v-spacer></v-spacer>
 
-        <v-btn icon x-small class="btn-margin" @click="clearConsole" title="Clear Screen">
+        <v-btn icon small class="btn-margin" @click="clearConsole" title="Clear Screen">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <v-btn icon x-small class="btn-margin" @click="exportToFile" title="Save To File">
+        <v-btn icon small class="btn-margin" @click="exportToFile" title="Save To File">
           <v-icon>mdi-file-download</v-icon>
         </v-btn>
-        <v-btn icon x-small class="btn-margin" @click="wrapChange" title="Wrap">
+        <v-btn icon small class="btn-margin" @click="wrapChange" title="Wrap">
           <v-icon>{{ wrap ? "mdi-format-text-wrapping-wrap" : "mdi-format-text-wrapping-overflow" }}</v-icon>
         </v-btn>
-        <v-btn icon x-small class="btn-margin" @click="scrollBottom" title="Scroll To End">
-          <v-icon>mdi-format-vertical-align-bottom</v-icon>
-        </v-btn>
-        <v-btn icon x-small class="btn-margin" @click="refresh" title="Refresh">
-          <v-icon>mdi-refresh</v-icon>
+        <v-btn icon small class="btn-margin" @click="autoScrollFunc" title="AutoScroll">
+          <v-icon>{{ autoScroll ? "mdi-arrow-down-bold" : "mdi-arrow-up-down-bold" }}</v-icon>
         </v-btn>
       </v-app-bar>
       <v-card flat class="overflow-y-auto logsheet">
@@ -62,9 +59,12 @@ export default {
       num_containers: 0,
       currContainer: "",
       
-      wrap: false,
+      wrap: true,
+      autoScroll: true,
       resizeObserver: ResizeObserver,
-      editor: null
+      editor: null,
+
+      lines: 0
     };
   },
   computed: {
@@ -112,8 +112,25 @@ export default {
         autoScrollEditorIntoView: true,
       });
       this.editor.setReadOnly(true);
+      this.editor.setHighlightActiveLine(true);
       this.editor.session.setUseWrapMode(this.wrap);
       this.editor.resize();
+      this.autoScrollFunc();
+      var vm = this;
+      this.editor.session.selection.on('changeCursor', function() {
+        var cursorRow = vm.editor.session.selection.getCursor().row + 1;
+        if(vm.autoScroll && cursorRow < vm.lines) {
+          // console.log("Make it false");
+          vm.autoScrollFunc()
+        }
+        else if(!vm.autoScroll && cursorRow >= vm.lines) {
+          // console.log("Make it true");
+          vm.autoScrollFunc()
+        }
+        // console.log(`Change cursor - ${vm.lines} : ${cursorRow}`);
+      });
+
+
     },
     containerChanged: function(element) {
       this.currContainer = element;
@@ -148,6 +165,7 @@ export default {
     addLog: function(data) {
       var sess = this.editor.session;
       sess.insert({ row: sess.getLength(), column: 0 }, data.toString());
+      this.lines = sess.getLength();
     },
     close: function() {
       this.resizeObserver.disconnect();
@@ -188,6 +206,19 @@ export default {
     scrollBottom: function() {
       this.editor.scrollToLine(this.editor.session.getLength(), false, true, null)
     },
+    autoScrollFunc: function() {
+      this.autoScroll = !this.autoScroll
+      if(this.autoScroll) {
+        this.scrollBottom();
+        this.editor.session.on('change', this.dataChangedEvent)
+      }
+      else {
+        this.editor.session.off('change', this.dataChangedEvent);
+      }
+    },
+    dataChangedEvent: function() {
+      helper.debounce(this.editor.renderer.scrollToLine(Number.POSITIVE_INFINITY), 500);
+    },
     refresh: function() {
       this.stopLogging();
       this.startLogging();
@@ -195,12 +226,8 @@ export default {
     testFunction: function() {
       this.connected = true;
       console.log("Adding");
-      var s = this.logdata[this.logdata.length - 1];
-      for (let index = 0; index < 10; index++) {
-        this.logdata.push("Text " + ((s) ? s : ""));
-        this.$nextTick(function() {
-          this.scrollBottom();
-        })
+      for (let index = 0; index < 20; index++) {
+        this.addLog("Text " + (index) + "\n");
       }
     }
   }
