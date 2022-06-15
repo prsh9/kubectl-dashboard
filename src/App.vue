@@ -32,10 +32,10 @@
           <router-view></router-view>
         </keep-alive>
         <v-dialog v-model="aboutScreen" persistent max-width="480px">
-          <About
+          <AboutWindow
             v-if="aboutScreen"
             @close="aboutScreen = false">
-          </About>
+          </AboutWindow>
         </v-dialog>
       </v-container>
     </v-main>
@@ -50,10 +50,10 @@ import NavDrawer from "./components/main/NavDrawer.vue"
 import DisplayNamespace from "./components/DisplayNamespace.vue"
 import DisplayPodData from "./components/DisplayPodData.vue"
 import DisplaySvcData from "./components/DisplaySvcData.vue"
-import Setting from "./components/main/Setting.vue";
+import SettingsPage from "./components/main/SettingsPage.vue";
 import ConsoleGroups from './components/console/ConsoleGroups.vue'
 import LogGroups from './components/log/LogGroups.vue';
-import About from './components/main/About.vue';
+import AboutWindow from './components/main/AboutWindow.vue';
 
 import ElectronStore from 'electron-store'
 const store = new ElectronStore();
@@ -65,7 +65,7 @@ const router = new VueRouter({
     { path: "/namespace", component: DisplayNamespace },
     { path: "/pod", component: DisplayPodData },
     { path: "/svc", component: DisplaySvcData },
-    { path: "/setting", component: Setting },
+    { path: "/setting", component: SettingsPage },
     { path: "/log", component: LogGroups },
     { path: "/console", component: ConsoleGroups },
     { path: "/", redirect: "/pod" },
@@ -148,7 +148,7 @@ export default {
     }
   },
   components: {
-    About,
+    AboutWindow,
     NavDrawer
   }
 };

@@ -3,7 +3,7 @@
 /* global __static */
 
 import path from 'path'
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import {
   createProtocol,
 } from 'vue-cli-plugin-electron-builder/lib'
@@ -15,8 +15,9 @@ const store = new ElectronStore();
 ElectronStore.initRenderer();
 
 import fixPath from 'fix-path'
-
 fixPath();
+
+import { TerminalHelper } from './js/terminal_helper'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -57,9 +58,9 @@ function createWindow () {
   win.on('closed', () => {
     win = null
   })
-}
 
-app.allowRendererProcessReuse = false
+  TerminalHelper(win);
+}
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
