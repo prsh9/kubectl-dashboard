@@ -15,14 +15,14 @@
     </v-tabs>
     <v-tabs-items v-model="selectedTab" v-if="consoles.length" class="tabclass">
       <v-tab-item v-for="item in consoles" :key="item.podSpec.podUid" active-class="tabclass">
-        <Console :podSpec="item.podSpec" :shellType="item.shellType"/>
+        <ConsoleWindow :podSpec="item.podSpec" :shellType="item.shellType"/>
       </v-tab-item>
     </v-tabs-items>
   </div>
 </template>
 
 <script>
-import Console from "./Console.vue";
+import ConsoleWindow from "./ConsoleWindow.vue";
 import { createNamespacedHelpers } from 'vuex'
 
 const { mapGetters } = createNamespacedHelpers('k8Data')
@@ -55,7 +55,7 @@ export default {
     }
   },
   components: {
-    Console
+    ConsoleWindow
   },
 };
 </script>

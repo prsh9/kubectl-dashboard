@@ -16,16 +16,15 @@
 </template>
 
 <script>
-import os from 'os';
-import * as pty from 'node-pty';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { } from 'xterm/css/xterm.css';
 import * as helper from '../../js/helpers.js';
-import { remote } from 'electron';
+import { ipcRenderer } from 'electron';
+import { randomUUID } from 'crypto';
 
 export default {
-  name: "Console",
+  name: "ConsoleWindow",
   props: {
     podSpec: {
       type: Object
@@ -39,7 +38,7 @@ export default {
     return {
       term: Terminal,
       fitAddon: FitAddon,
-      ptyProcess: pty.IPty,
+      termId: String,
       resizeObserver: ResizeObserver,
     };
   },
@@ -50,9 +49,7 @@ export default {
     this.onClose();
   },
   methods: {
-    init: function() {
-      var shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-
+    init: async function() {
       this.term = new Terminal();
       this.fitAddon = new FitAddon();
 
@@ -60,30 +57,30 @@ export default {
 
       this.term.open(this.$refs.terminal);
 
-      this.ptyProcess = pty.spawn(shell, [], {
-        name: this.podSpec.podUid,
-        cwd: os.homedir(),
-        env: remote.getGlobal('process').env
-      });
+      // this.termId = this.podSpec.podUid;
+      this.termId = randomUUID();
+      console.log("Term  : " + this.termId);
+
+      await ipcRenderer.invoke('terminal.spawn', this.termId)
 
       this.fitAddon.fit();
       var col = this.term.cols;
       var row = this.term.rows;
-      this.ptyProcess.resize(col, row)
+      this.resizePty(col, row)
       this.term.focus();
 
       this.resizeObserver = new ResizeObserver(helper.debounce(this.checkResize, 500))
       this.resizeObserver.observe(this.$refs.terminal)
 
       var command = "kubectl exec -it " + this.podSpec.podName + " " + this.shellType + " -n " + this.podSpec.podNamespace + "; exit\r";
-      this.ptyProcess.write(command);
+      ipcRenderer.send('terminal.keystroke.' + this.termId, command)
 
-      this.ptyProcess.onData((data) => {
-        this.term.write(data);
-      });
+      ipcRenderer.on('terminal.incomingData.' + this.termId, (_, data) => {
+        this.term.write(data)
+      })
 
       this.term.onData((data) => {
-        this.ptyProcess.write(data);
+        ipcRenderer.send('terminal.keystroke.' + this.termId, data)
       })
     },
     onResize: function() {
@@ -92,12 +89,16 @@ export default {
 
         var col = this.term.cols;
         var row = this.term.rows;
-        this.ptyProcess.resize(col, row)
+        this.resizePty(col, row)
       }
+    },
+    resizePty: function(cols, rows) {
+      ipcRenderer.send("terminal.resize." + this.termId, { cols, rows })
     },
     onClose: function() {
       this.fitAddon.dispose();
-      this.ptyProcess.kill();
+      ipcRenderer.removeAllListeners('terminal.incomingData.' + this.termId)
+      ipcRenderer.send('killTerm', this.termId)
       this.term.dispose();
       this.resizeObserver.disconnect();
     },

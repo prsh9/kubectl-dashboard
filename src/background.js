@@ -3,7 +3,7 @@
 /* global __static */
 
 import path from 'path'
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, dialog } from 'electron'
 import {
   createProtocol,
 } from 'vue-cli-plugin-electron-builder/lib'
@@ -15,8 +15,9 @@ const store = new ElectronStore();
 ElectronStore.initRenderer();
 
 import fixPath from 'fix-path'
-
 fixPath();
+
+import { TerminalHelper, killAllTerm } from './js/terminal_helper'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -36,7 +37,6 @@ function createWindow () {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true,
       devTools: isDevelopment ? true : false,
       scrollBounce: true
     }
@@ -56,10 +56,11 @@ function createWindow () {
 
   win.on('closed', () => {
     win = null
+    killAllTerm();
   })
-}
 
-app.allowRendererProcessReuse = false
+  TerminalHelper(win);
+}
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -97,6 +98,13 @@ app.on('ready', async () => {
 
   }
   createWindow()
+  ipcMain.handle('app.getVersion', () => {
+    return app.getVersion();
+  })
+
+  ipcMain.handle('log.saveFile', async (_, options) => {
+    return await dialog.showSaveDialog(null, options);
+  })
 })
 
 // Exit cleanly on request from parent process in development mode.
