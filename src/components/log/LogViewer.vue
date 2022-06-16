@@ -41,7 +41,7 @@ import {} from "ace-builds/webpack-resolver";
 
 import * as helper from '../../js/helpers.js';
 
-import { remote } from 'electron';
+import { ipcRenderer } from 'electron';
 
 import * as fs from 'fs';
 
@@ -193,7 +193,7 @@ export default {
           ]
       };
 
-      var saveDiag = await remote.dialog.showSaveDialog(null, options);
+      var saveDiag = await ipcRenderer.invoke('log.saveFile', options);
       if(!saveDiag.canceled) {
         var path = saveDiag.filePath;
         fs.writeFileSync(path, this.editor.session.toString(), 'utf-8');

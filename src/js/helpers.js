@@ -1,4 +1,4 @@
-import { remote } from 'electron'
+import { ipcRenderer } from "electron";
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
@@ -19,8 +19,10 @@ export function debounce(func, wait, immediate) {
 	};
 }
 
-export function getCurrentVersion() {
-	return remote.app.getVersion()
+export async function getCurrentVersion() {
+	var version = await ipcRenderer.invoke('app.getVersion')
+	console.log(version);
+	return version;
 }
 
 export async function getLatestVersion() {
@@ -48,7 +50,7 @@ export async function getLatestVersion() {
 export async function checkForUpdates() {
 	const semverCompare = require("semver-compare");
 
-	var currentVer = getCurrentVersion()
+	var currentVer = await getCurrentVersion()
 
 	return getLatestVersion().then((res) => {
 		var latest_version = res.tag_name.substr(1);

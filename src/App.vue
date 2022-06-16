@@ -118,7 +118,7 @@ export default {
       var updateAvailableConfig = store.get("update.updateAvailable", false)
       this.updateInfo.updateAvailable = updateAvailableConfig;
 
-      var currentVersion = getCurrentVersion()
+      var currentVersion = getCurrentVersion().then(res => { return res});
       currentVersion = "v" + currentVersion
       var latestVersionConfig = store.get("update.latestVersion", currentVersion)
       
