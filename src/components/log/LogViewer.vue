@@ -10,6 +10,23 @@
 
     <v-card flat class="parentcard">
       <v-app-bar flat dense>
+        <v-menu offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon small v-bind="attrs" v-on="on" class="btn-margin" title="Syntax">
+              <v-icon>mdi-pencil-outline</v-icon>
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item-group active-class="teal--text text--accent-4" :value="syntaxModeIndex" v-model="syntaxModeIndex">
+              <v-list-item v-for="item in syntaxHighlighters" :key="item.title" @click="setMode(item.mode)">
+                <v-list-item-content>{{ item.title }}</v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-menu>
+        <v-btn icon small class="btn-margin" @click="themeChanged" title="Theme">
+          <v-icon>{{ darkTheme ? "mdi-weather-night" : "mdi-white-balance-sunny" }}</v-icon>
+        </v-btn>
         <v-spacer></v-spacer>
 
         <v-btn icon small class="btn-margin" @click="clearConsole" title="Clear Screen">
@@ -37,7 +54,9 @@
 let stream = null;
 
 import * as ace from "ace-builds/src-min-noconflict/ace";
-import {} from "ace-builds/webpack-resolver";
+require("ace-builds/webpack-resolver");
+
+ace.config.set('basePath', 'ace-builds/src-min-noconflict/ace')
 
 import * as helper from '../../js/helpers.js';
 
@@ -53,6 +72,14 @@ export default {
   },
   data() {
     return {
+      syntaxHighlighters: [
+        { title: 'Text', mode: 'ace/mode/text' },
+        { title: 'Json', mode: 'ace/mode/json5' },
+        { title: 'XML', mode: 'ace/mode/xml' },
+      ],
+      syntaxModeIndex: 1,
+      darkTheme: false,
+
       connected: false,
       errMessage: "",
       
@@ -115,6 +142,9 @@ export default {
       this.editor.setHighlightActiveLine(true);
       this.editor.session.setUseWrapMode(this.wrap);
       this.editor.resize();
+      var mode = this.syntaxHighlighters[this.syntaxModeIndex].mode;
+      this.setMode(mode)
+      this.setTheme();
       this.autoScrollFunc();
       var vm = this;
       this.editor.session.selection.on('changeCursor', function() {
@@ -218,6 +248,20 @@ export default {
     },
     dataChangedEvent: function() {
       helper.debounce(this.editor.renderer.scrollToLine(Number.POSITIVE_INFINITY), 500);
+    },
+    setMode: function(mode) {
+      this.editor.session.setMode(mode)
+    },
+    themeChanged: function() {
+      this.darkTheme = !this.darkTheme;
+      this.setTheme();
+    },
+    setTheme: function() {
+      var theme = 'ace/theme/textmate';
+      if(this.darkTheme) {
+        theme = 'ace/theme/terminal';
+      }
+      this.editor.setTheme(theme)
     },
     refresh: function() {
       this.stopLogging();
