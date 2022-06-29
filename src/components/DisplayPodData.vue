@@ -11,7 +11,7 @@
           </tr>
         </thead>
         <tbody>
-          <PodRow v-for="row in podItems" :key="row.metadata.uid" :row="row"></PodRow>
+          <PodRow v-for="row in podItems" :key="row.metadata.uid" :row="row" :class="{ selected: selected ? selected.includes(row.metadata.uid) : false }" @selected="selectUid"></PodRow>
         </tbody>
       </v-simple-table>
     </div>
@@ -38,6 +38,7 @@ export default {
           { name: "Age" }, 
           { name: "Actions" }
       ],
+      selected: null,
       refresh: false,
       timeoutInstance: null
     };
@@ -78,6 +79,9 @@ export default {
     startRefresher: function() {
       this.timeoutInstance = setTimeout(this.init, 60000);
     },
+    selectUid: function(id) {
+      this.selected = id
+    }
   },
   components: {
     PodRow
@@ -88,5 +92,8 @@ export default {
 <style>
 .row-head-centered {
   text-align: center;
+}
+.selected {
+  background: lightgrey
 }
 </style>

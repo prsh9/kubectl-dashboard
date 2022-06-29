@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr @click="selectedRow">
     <td class="name_css">{{ pod_name }}</td>
     <td class="minimal_pad">
       <div class="min_w_h">
@@ -9,6 +9,7 @@
           height="20px"
           :buffer-value="ready_container_percent"
           :value="ready_container_percent"
+          reverse
         >
           <v-spacer></v-spacer>
           {{ num_ready_containers }}/{{ num_comtainers }}
@@ -121,6 +122,9 @@ export default {
     };
   },
   computed: {
+    pod_uid: function() {
+      return this.row.metadata.uid;
+    },
     pod_name: function() {
       return this.row.metadata.name;
     },
@@ -250,6 +254,9 @@ export default {
       this.shellSelection = false;
       this.$store.dispatch("k8Data/openConsole", { podUid: this.row.metadata.uid, shellType: this.shellSelectionText });
       this.$router.push("/console?select=-1")
+    },
+    selectedRow: function() {
+      this.$emit("selected", this.pod_uid)
     }
   },
   components: {
