@@ -48,7 +48,7 @@ export default {
             copyright: "Licenced under Mozilla Public License 2.0.",
             homepage: "https://prsh9.github.io/KubeCtl-Dashboard/",
             bugReportLink: "https://github.com/prsh9/KubeCtl-Dashboard/issues",
-            currentVersion: getCurrentVersion(),
+            currentVersion: 'Determining...',
             latestVersionText: "Checking...",
             latestVersionLink: "",
             updateAvailable: false,
@@ -56,9 +56,19 @@ export default {
         }
     },
     mounted() {
+        this.resolveCurrentVersion();
         this.checkUpdate();
     },
     methods: {
+        resolveCurrentVersion: function() {
+            var vm = this;
+            getCurrentVersion().then((res) => {
+                vm.currentVersion = res;
+            }, (err) => {
+                console.log("Error while resolving current version " + err);
+                vm.currentVersion = "error"
+            });
+        },
         checkUpdate: function() {
             var vm = this;
             vm.checkingForUpdates = true;
