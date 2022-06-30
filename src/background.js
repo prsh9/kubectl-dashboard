@@ -24,7 +24,7 @@ import { TerminalHelper, killAllTerm } from './js/terminal_helper'
 let win
 
 // Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true, standard: true } }])
+protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true }}])
 
 function createWindow () {
   // Create the browser window.

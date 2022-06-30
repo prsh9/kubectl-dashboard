@@ -77,5 +77,5 @@ export function TerminalHelper(window) {
 
   ipcMain.on('killTerm', (_, id) => killTerm(id));
 
-  ipcMain.on('killAllTerm', (_) => killAllTerm());
+  ipcMain.on('killAllTerm', () => killAllTerm());
 }
