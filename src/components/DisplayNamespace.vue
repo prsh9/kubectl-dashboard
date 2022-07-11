@@ -55,6 +55,7 @@ export default {
   },
   activated() {
     this.init();
+    this.filter = "";
     this.selectedNs = this.$store.getters['k8Data/getSelectedNamespace']
   },
   deactivated() {
