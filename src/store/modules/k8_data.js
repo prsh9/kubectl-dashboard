@@ -79,12 +79,6 @@ const state = {
   svc_data: {
     metadata: null,
     items: {}
-  },
-  open_consoles: {
-    items: []
-  },
-  open_logs: {
-    items: []
   }
 }
 
@@ -120,13 +114,6 @@ const getters = {
   getSvcData: (state) => (svcUid) => {
     return state.svc_data.items[svcUid];
   },
-
-  getOpenConsoles: (state) => {
-    return state.open_consoles.items;
-  },
-  getOpenLogs: (state) => {
-    return state.open_logs.items;
-  }
 }
 
 // actions
@@ -254,18 +241,6 @@ const actions = {
     });
   },
 
-  openConsole: function({ commit, getters }, { podUid, shellType } ) {
-    var podSpec = getters.getPodData(podUid)
-    commit('addOpenConsole', {podUid: podUid, podNamespace: podSpec.metadata.namespace, podName: podSpec.metadata.name, shellType: shellType })
-  },
-  deleteOpenConsole: function({ commit }, index ) {
-    commit('deleteOpenConsole', {index: index })
-  },
-
-  openLog: function({ commit, getters }, { podUid }) {
-    var podSpec = getters.getPodData(podUid)
-    commit('addOpenLog', {podUid: podUid, podNamespace: podSpec.metadata.namespace, podName: podSpec.metadata.name, podSpec: podSpec })
-  },
   getLogStream: async function(_, { podNamespace, podName, currContainer }) {
     return client.api.v1.namespaces(podNamespace).pods(podName).log.getByteStream({
       qs: {
@@ -276,9 +251,10 @@ const actions = {
       }
     });
   },
-  closeLog: function({ commit }, index ) {
-    commit('deleteOpenLog', {index: index })
-  },
+
+  setSelectedNamespace: function({ commit }, selectedNamespace) {
+    commit('setSelectedNamespace', selectedNamespace);
+  }
 }
 
 // mutations
@@ -299,8 +275,6 @@ const mutations = {
     var emptyData = {items: {}}
     Vue.set(state, 'pod_data', emptyData);
     Vue.set(state, 'svc_data', emptyData);
-    state.open_consoles.items.splice(0, state.open_consoles.items.length);
-    state.open_logs.items.splice(0, state.open_logs.items.length);
   },
   setPodData (state, { data }) {
       Vue.set(state, 'pod_data', data);
@@ -320,20 +294,6 @@ const mutations = {
   },
   deleteSvcItem(state, svcData) {
     Vue.delete(state.svc_data.items, getKey(svcData));
-  },
-
-  addOpenConsole(state, { podUid, podNamespace, podName, shellType }) {
-    state.open_consoles.items.push({podSpec: {podUid: podUid, podNamespace: podNamespace, podName: podName}, shellType: shellType})
-  },
-  deleteOpenConsole(state, { index }) {
-    state.open_consoles.items.splice(index, 1)
-  },
-
-  addOpenLog(state, { podUid, podNamespace, podName, podSpec }) {
-    state.open_logs.items.push({logDetails: {podUid: podUid, podNamespace: podNamespace, podName: podName, podSpec: podSpec}})
-  },
-  deleteOpenLog(state, { index }) {
-    state.open_logs.items.splice(index, 1)
   },
 }
 

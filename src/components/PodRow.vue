@@ -73,6 +73,7 @@
 <script>
 import DescribeResource from "./DescribeResource.vue";
 import * as humanize from 'humanize-duration';
+import { extractContainterNames, ConsoleData, LogData } from '../js/k8_data_helpers';
 
 const shortEnglishHumanizer = humanize.humanizer({
   language: "shortEn",
@@ -241,7 +242,9 @@ export default {
       this.$store.dispatch("k8Data/deletePod", this.row.metadata.uid);
     },
     viewLogsAction: function() {
-      this.$store.dispatch("k8Data/openLog", { podUid: this.row.metadata.uid });
+      var containters = extractContainterNames(this.row);
+      var logData = new LogData(this.row.metadata.uid, this.pod_name, this.pod_namespace, containters.container, containters.initContainer);
+      this.$store.dispatch("openLogs/addOpenTab", { uid: this.row.metadata.uid, data: logData });
       this.$router.push("/log?select=-1")
     },
     describeAction: function() {
@@ -252,11 +255,12 @@ export default {
     },
     openConsoleUsing: function() {
       this.shellSelection = false;
-      this.$store.dispatch("k8Data/openConsole", { podUid: this.row.metadata.uid, shellType: this.shellSelectionText });
-      this.$router.push("/console?select=-1")
+      var consoleData = new ConsoleData(this.row.metadata.uid, this.pod_name, this.pod_namespace, this.shellSelectionText);
+      this.$store.dispatch("openConsoles/addOpenTab", { uid: this.row.metadata.uid, data: consoleData });
+      this.$router.push("/console?select=-1");
     },
     selectedRow: function() {
-      this.$emit("selected", this.pod_uid)
+      this.$emit("selected", this.pod_uid);
     }
   },
   components: {

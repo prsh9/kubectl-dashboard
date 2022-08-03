@@ -4,9 +4,9 @@
       No Opened Logs
     </v-card>
     <v-tabs fixed-tabs v-model="selectedTab" v-if="logs.length" class="flexcontainer flex-grow-0 flex-shrink-1">
-      <v-tab v-for="(item, index) in logs" :key="item.logDetails.podUid">
+      <v-tab v-for="(item, index) in logs" :key="item.id">
         <v-spacer></v-spacer>
-        {{ item.logDetails.podName }} Logs
+        {{ item.data.podName }} Logs
         <v-spacer></v-spacer>
         <v-btn class="text-right" icon outlined x-small @click="close(index)">
           <v-icon>mdi-close</v-icon>
@@ -14,8 +14,8 @@
       </v-tab>
     </v-tabs>
     <v-tabs-items v-model="selectedTab" v-if="logs.length" class="tabclass">
-      <v-tab-item v-for="item in logs" :key="item.logDetails.podUid" active-class="tabclass">
-        <LogViewer :logDetails="item.logDetails"/>
+      <v-tab-item v-for="item in logs" :key="item.id" active-class="tabclass">
+        <LogViewer :logDetails="item.data"/>
       </v-tab-item>
     </v-tabs-items>
   </div>
@@ -25,7 +25,7 @@
 import LogViewer from "../log/LogViewer.vue";
 import { createNamespacedHelpers } from 'vuex'
 
-const { mapGetters } = createNamespacedHelpers('k8Data')
+const { mapGetters } = createNamespacedHelpers('openLogs')
 
 export default {
   name: "LogGroups",
@@ -37,7 +37,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      logs: 'getOpenLogs',
+      logs: 'getOpenTabs',
     }),
   },
   activated() {
@@ -50,8 +50,8 @@ export default {
     }
   },
   methods: {
-    close: function(item) {
-      this.$store.dispatch("k8Data/closeLog", item)
+    close: function(itemIndex) {
+      this.$store.dispatch("openLogs/removeOpenTabByIndex", itemIndex)
     }
   },
   components: {

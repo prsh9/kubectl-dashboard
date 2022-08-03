@@ -59,15 +59,14 @@ require("ace-builds/webpack-resolver");
 ace.config.set('basePath', 'ace-builds/src-min-noconflict/ace')
 
 import * as helper from '../../js/helpers.js';
-
 import { ipcRenderer } from 'electron';
-
 import * as fs from 'fs';
+import { LogData } from '../../js/k8_data_helpers.js';
 
 export default {
   props: {
     logDetails: {
-      type: Object
+      type: LogData
     }
   },
   data() {
@@ -97,17 +96,15 @@ export default {
   computed: {
     get_container_names: function() {
       var container_names = [];
-      var pod_spec = this.logDetails.podSpec
-      if(pod_spec) {
-        pod_spec.spec.containers.forEach(element => {
-          container_names.push(element.name);
-        });
-      }
-
-      if(pod_spec.spec.initContainers) {
-        pod_spec.spec.initContainers.forEach(element => {
-          container_names.push("(init) " + element.name);
-        });
+      this.logDetails.containerNames.forEach(element => {
+        container_names.push({ text: element, value: element });
+      })
+      
+      if(this.logDetails.initContainerNames) {
+        this.logDetails.initContainerNames.forEach(element => {
+          container_names.push({ text: "(init) " + element, value: element });
+        })
+        
       }
       return container_names;
     },
@@ -122,12 +119,9 @@ export default {
   },
   methods: {
     init: async function() {
-      var pod_spec = this.logDetails.podSpec;
-      this.num_containers = pod_spec.spec.containers.length;
-      if(pod_spec.spec.initContainers) {
-        this.num_containers += pod_spec.spec.initContainers.length
-      }
-      this.currContainer = pod_spec.spec.containers[0].name;
+      this.num_containers = this.logDetails.containerNames.length;
+      this.num_containers += this.logDetails.initContainerNames.length;
+      this.currContainer = this.logDetails.containerNames[0];
 
       this.resizeObserver = new ResizeObserver(helper.debounce(this.checkResize, 500))
       this.resizeObserver.observe(this.$refs.logwindow)
@@ -136,7 +130,7 @@ export default {
     },
     initAceEditor: function() {
       this.editor = ace.edit(this.$refs.logwindow, {
-        autoScrollEditorIntoView: true,
+        // autoScrollEditorIntoView: true,
       });
       this.editor.setReadOnly(true);
       this.editor.setHighlightActiveLine(true);
@@ -150,14 +144,11 @@ export default {
       this.editor.session.selection.on('changeCursor', function() {
         var cursorRow = vm.editor.session.selection.getCursor().row + 1;
         if(vm.autoScroll && cursorRow < vm.lines) {
-          // console.log("Make it false");
           vm.autoScrollFunc()
         }
         else if(!vm.autoScroll && cursorRow >= vm.lines) {
-          // console.log("Make it true");
           vm.autoScrollFunc()
         }
-        // console.log(`Change cursor - ${vm.lines} : ${cursorRow}`);
       });
 
 
