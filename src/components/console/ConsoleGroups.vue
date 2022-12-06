@@ -4,9 +4,9 @@
       No Open/Created Consoles
     </v-card>
     <v-tabs fixed-tabs v-model="selectedTab" v-if="consoles.length" class="flexcontainer flex-grow-0 flex-shrink-1">
-      <v-tab v-for="(item, index) in consoles" :key="item.podSpec.podUid">
+      <v-tab v-for="(item, index) in consoles" :key="item.id">
         <v-spacer></v-spacer>
-        {{ item.podSpec.podName }}
+        {{ item.data.podName }}
         <v-spacer></v-spacer>
         <v-btn class="text-right" icon outlined x-small @click="close(index)">
           <v-icon>mdi-close</v-icon>
@@ -14,8 +14,8 @@
       </v-tab>
     </v-tabs>
     <v-tabs-items v-model="selectedTab" v-if="consoles.length" class="tabclass">
-      <v-tab-item v-for="item in consoles" :key="item.podSpec.podUid" active-class="tabclass">
-        <ConsoleWindow :podSpec="item.podSpec" :shellType="item.shellType"/>
+      <v-tab-item v-for="item in consoles" :key="item.id" active-class="tabclass">
+        <ConsoleWindow :consoleSpec="item.data"/>
       </v-tab-item>
     </v-tabs-items>
   </div>
@@ -25,11 +25,10 @@
 import ConsoleWindow from "./ConsoleWindow.vue";
 import { createNamespacedHelpers } from 'vuex'
 
-const { mapGetters } = createNamespacedHelpers('k8Data')
+const { mapGetters } = createNamespacedHelpers('openConsoles')
 
 export default {
   name: "ConsoleGroups",
-  props: [''],
   data() {
     return {
       selectedTab: 0
@@ -37,7 +36,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      consoles: 'getOpenConsoles',
+      consoles: 'getOpenTabs',
     }),
   },
   activated() {
@@ -50,8 +49,8 @@ export default {
     }
   },
   methods: {
-    close: function(item) {
-      this.$store.dispatch("k8Data/deleteOpenConsole", item)
+    close: function(itemIndex) {
+      this.$store.dispatch("openConsoles/removeOpenTabByIndex", itemIndex)
     }
   },
   components: {

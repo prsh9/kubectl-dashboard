@@ -1,7 +1,7 @@
 <template>
   <v-card flat class="consolecontent">
     <v-app-bar short color="white" flat dense class="appbar-console">
-      <h1>Shell {{ podSpec.podNamespace }}/{{ podSpec.podName }}</h1>
+      <h1>Shell {{ consoleSpec.podNamespace }}/{{ consoleSpec.podName }}</h1>
       <div class="appbar-btns">
         <v-btn icon small class="btn-margin" @click="onResize" title="Resize">
           <v-icon>mdi-fit-to-page</v-icon>
@@ -22,16 +22,13 @@ import { } from 'xterm/css/xterm.css';
 import * as helper from '../../js/helpers.js';
 import { ipcRenderer } from 'electron';
 import { randomUUID } from 'crypto';
-
+import { ConsoleData } from '../../js/k8_data_helpers.js'
+ 
 export default {
   name: "ConsoleWindow",
   props: {
-    podSpec: {
-      type: Object
-    },
-    shellType: {
-      type: String,
-      default: "bash"
+    consoleSpec: {
+      type: ConsoleData
     }
   },
   data() {
@@ -57,7 +54,7 @@ export default {
 
       this.term.open(this.$refs.terminal);
 
-      // this.termId = this.podSpec.podUid;
+      // this.termId = this.consoleSpec.podUid;
       this.termId = randomUUID();
       console.log("Term  : " + this.termId);
 
@@ -72,7 +69,7 @@ export default {
       this.resizeObserver = new ResizeObserver(helper.debounce(this.checkResize, 500))
       this.resizeObserver.observe(this.$refs.terminal)
 
-      var command = "kubectl exec -it " + this.podSpec.podName + " " + this.shellType + " -n " + this.podSpec.podNamespace + "; exit\r";
+      var command = "kubectl exec -it " + this.consoleSpec.podName + " " + this.consoleSpec.shellType + " -n " + this.consoleSpec.podNamespace + "; exit\r";
       ipcRenderer.send('terminal.keystroke.' + this.termId, command)
 
       ipcRenderer.on('terminal.incomingData.' + this.termId, (_, data) => {

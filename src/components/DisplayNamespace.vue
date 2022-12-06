@@ -73,7 +73,7 @@ export default {
       });
     },
     updateItem: function() {
-      this.$store.commit('k8Data/setSelectedNamespace', this.selectedNs)
+      this.$store.dispatch('k8Data/setSelectedNamespace', this.selectedNs)
       store.set("selected.namespace", this.selectedNs);
       this.$router.push("/pod")
     },
