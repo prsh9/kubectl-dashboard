@@ -71,11 +71,20 @@ export function killAllTerm() {
   });
 }
 
-export function TerminalHelper(window) {
+export function registerTerminalHelper(window) {
 
   ipcMain.handle('terminal.spawn', (_, id) => spawnNewTerminal(window, id))
 
   ipcMain.on('killTerm', (_, id) => killTerm(id));
 
   ipcMain.on('killAllTerm', () => killAllTerm());
+}
+
+export function deregisterTerminalHelper() {
+
+  ipcMain.removeHandler('terminal.spawn')
+
+  ipcMain.removeAllListeners('killTerm');
+
+  ipcMain.removeAllListeners('killAllTerm');
 }

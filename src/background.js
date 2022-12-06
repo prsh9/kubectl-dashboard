@@ -11,13 +11,12 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 import ElectronStore from 'electron-store'
-const store = new ElectronStore();
 ElectronStore.initRenderer();
 
 import fixPath from 'fix-path'
 fixPath();
 
-import { TerminalHelper, killAllTerm } from './js/terminal_helper'
+import { registerTerminalHelper, deregisterTerminalHelper, killAllTerm } from './js/terminal_helper'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -55,11 +54,12 @@ function createWindow () {
   }
 
   win.on('closed', () => {
-    win = null
+    deregisterTerminalHelper();
     killAllTerm();
+    win = null
   })
 
-  TerminalHelper(win);
+  registerTerminalHelper(win);
 }
 
 // Quit when all windows are closed.
