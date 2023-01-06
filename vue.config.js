@@ -25,7 +25,9 @@ module.exports = {
     },
     configureWebpack: {
         plugins: [
-            new webpack.EnvironmentPlugin(['HOME'])
+            new webpack.DefinePlugin({
+                'process.env.HOME': JSON.stringify(process.env.HOME)
+            })
         ],
         devServer: {
             port: 9000

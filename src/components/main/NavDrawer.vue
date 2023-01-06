@@ -47,6 +47,7 @@ export default {
       mini: true,
       menuItems: [
         { icon: "vector-arrange-below", title: "Namespaces", link: "/namespace" },
+        { icon: "hexagon-multiple", title: "Deployments", link: "/deployment" },
         { icon: "cube-outline", title: "Pods", link: "/pod" },
         { icon: "cogs", title: "Services", link: "/svc" },
         { icon: "math-log", title: "Log Group", link: "/log" },

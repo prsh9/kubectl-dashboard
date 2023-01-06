@@ -48,6 +48,7 @@ import { checkForUpdates, getCurrentVersion } from './js/helpers';
 
 import NavDrawer from "./components/main/NavDrawer.vue"
 import DisplayNamespace from "./components/DisplayNamespace.vue"
+import DisplayDeployment from "./components/DisplayDeployment.vue"
 import DisplayPodData from "./components/DisplayPodData.vue"
 import DisplaySvcData from "./components/DisplaySvcData.vue"
 import SettingsPage from "./components/main/SettingsPage.vue";
@@ -63,6 +64,7 @@ import VueRouter from "vue-router";
 const router = new VueRouter({
   routes: [
     { path: "/namespace", component: DisplayNamespace },
+    { path: "/deployment", component: DisplayDeployment },
     { path: "/pod", component: DisplayPodData },
     { path: "/svc", component: DisplaySvcData },
     { path: "/setting", component: SettingsPage },
@@ -114,7 +116,7 @@ export default {
       var namespace = store.get("selected.namespace", "default");
       this.$store.commit('k8Data/setSelectedNamespace', namespace)
     },
-    updateChecker: function() {
+    updateChecker: async function() {
       var updateAvailableConfig = store.get("update.updateAvailable", false)
       this.updateInfo.updateAvailable = updateAvailableConfig;
 

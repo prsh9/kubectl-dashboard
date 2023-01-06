@@ -79,6 +79,10 @@ const state = {
   svc_data: {
     metadata: null,
     items: {}
+  },
+  deployment_data: {
+    metadata: null,
+    items: {}
   }
 }
 
@@ -106,13 +110,17 @@ const getters = {
   },
   getPodData: (state) => (podUid) => {
     return state.pod_data.items[podUid];
-  }
-  ,
+  },
+
   orderedSvcItems: (state) => {
     return sortResource(state.svc_data.items);
   },
   getSvcData: (state) => (svcUid) => {
     return state.svc_data.items[svcUid];
+  },
+
+  orderedDeploymentItems: (state) => {
+    return sortResource(state.deployment_data.items);
   },
 }
 
@@ -127,6 +135,10 @@ const actions = {
   fetchSvcData: function({ commit, getters }) {
     return fetchResource(client.api.v1.namespaces(getters.getSelectedNamespace).services, commit, 'setSvcData')
   },
+  fetchDeploymentData: function({ commit, getters }) {
+    return fetchResource(client.apis.apps.v1.namespaces(getters.getSelectedNamespace).deployments, commit, 'setDeploymentData')
+  },
+  
 
   stopPodWatch: function() {
     return new Promise((resolve) => {
@@ -295,6 +307,11 @@ const mutations = {
   deleteSvcItem(state, svcData) {
     Vue.delete(state.svc_data.items, getKey(svcData));
   },
+
+  setDeploymentData (state, { data }) {
+    Vue.set(state, 'deployment_data', data);
+  },
+  
 }
 
 export default {
