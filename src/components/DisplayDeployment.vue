@@ -36,8 +36,15 @@
         @click:row="(_item, slot) => slot.expand(!slot.isExpanded)"
       >
         <template v-slot:expanded-item="{ headers, item }">
-          <td :colspan="headers.length">
-            More info about {{ item.name }}
+          <td :colspan="headers.length" class="pa-0 ma-0">
+            <v-card flat outlined class="pa-2 d-flex">
+              <v-btn class="ml-2 btn-class" text small outlined ripple @click="startDeployment(item)">Start</v-btn>
+              <v-btn class="ml-2 btn-class" text small outlined ripple @click="stopDeployment(item)">Stop</v-btn>
+              <!-- <v-btn class="ml-2 btn-class" text small outlined ripple v-if="!scaling" @click="scaling=!scaling">Scale</v-btn> -->
+              <!-- <v-text-field small outlined v-if="scaling">1</v-text-field> -->
+              <v-spacer></v-spacer>
+            </v-card>
+            <v-snackbar v-model="scaleSnackModel" :timeout="snacktimeout" text>{{ snackMessage }}</v-snackbar>
           </td>
         </template>
         // eslint-disable-next-line
@@ -47,7 +54,7 @@
           </v-chip>
         </template>
         <template v-slot:item.containerImages="{ value }">
-          <v-text-field v-if="value.length == 1"
+          <v-text-field
             readonly
             flat
             dense
@@ -116,7 +123,11 @@ export default {
       selected: null,
       expanded: null,
       search: null,
+      scaling: false,
       refresh: false,
+      scaleSnackModel: false,
+      snackMessage: "",
+      snacktimeout: 1000,
       timeoutInstance: null
     };
   },
@@ -176,20 +187,20 @@ export default {
       return conatinerImages;
     },
     init: async function() {
-      // await this.$store.dispatch('k8Data/stopPodWatch').then(() => {
+      await this.$store.dispatch('k8Data/stopDeploymentWatch').then(() => {
           return this.$store.dispatch('k8Data/fetchDeploymentData')
-      //   }).then(() => {
-      //     return this.$store.dispatch('k8Data/watchPodData');
-      //   },
-      //   (rej) => {
-      //     console.log("Error" + rej);
-      //   }
-      // ).finally(() => {
-      //   this.startRefresher();
-      // });
+        }).then(() => {
+          return this.$store.dispatch('k8Data/watchDeploymentData');
+        },
+        (rej) => {
+          console.log("Error" + rej);
+        }
+      ).finally(() => {
+        this.startRefresher();
+      });
     },
     startRefresher: function() {
-      // this.timeoutInstance = setTimeout(this.init, 60000);
+      this.timeoutInstance = setTimeout(this.init, 120000);
     },
     determineReadinessColor: function(ready, total) {
       if(ready == total) {
@@ -203,6 +214,18 @@ export default {
       }
       return "red";
     },
+    startDeployment: function(item) {
+      this.snackMessage = "Starting Deployment";
+      this.scaleSnackModel = true;
+      if(item.replicas == 0) {
+        this.$store.dispatch('k8Data/modifyDeploymentReplica', { namespace: this.selectedNamespace, deploymentName: item.name, newReplica: 1})
+      }
+    },
+    stopDeployment: function(item) {
+      this.snackMessage = "Stopping Deployment";
+      this.scaleSnackModel = true;
+      this.$store.dispatch('k8Data/modifyDeploymentReplica', { namespace: this.selectedNamespace, deploymentName: item.name, newReplica: 0})
+    }
   },
   components: {
   }
@@ -221,4 +244,7 @@ export default {
   max-width: 350px;
 }
 
+.btn-class {
+  text-transform: none;
+}
 </style>
