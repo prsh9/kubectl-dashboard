@@ -1,6 +1,6 @@
 {
   "name": "kube-dev-dashboard",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "description": "Dev Desktop Client for KubeCtl",
   "author": {
     "name": "PS"
@@ -68,7 +68,12 @@
       "eslint:recommended"
     ],
     "rules": {
-      "vue/valid-v-slot": ["error", { "allowModifiers": true }]
+      "vue/valid-v-slot": [
+        "error",
+        {
+          "allowModifiers": true
+        }
+      ]
     }
   },
   "postcss": {
