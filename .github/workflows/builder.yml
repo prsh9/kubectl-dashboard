@@ -27,7 +27,7 @@ jobs:
     - name: Generate Icons
       run: yarn electron:generate-icons
     - name: Build
-      run: yarn electron:build -mlw --publish never
+      run: yarn electron:build -ml --publish never
     - name: deploy
       uses: "marvinpinto/action-automatic-releases@v1.2.1"
       with:
