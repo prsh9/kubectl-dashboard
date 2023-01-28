@@ -72,24 +72,8 @@
 
 <script>
 import DescribeResource from "./DescribeResource.vue";
-import * as humanize from 'humanize-duration';
+import { shortEnglishHumanizer } from '../js/date_helpers';
 import { extractContainterNames, ConsoleData, LogData } from '../js/k8_data_helpers';
-
-const shortEnglishHumanizer = humanize.humanizer({
-  language: "shortEn",
-  languages: {
-    shortEn: {
-      y: () => "y",
-      mo: () => "mo",
-      w: () => "w",
-      d: () => "d",
-      h: () => "h",
-      m: () => "m",
-      s: () => "s",
-      ms: () => "ms",
-    },
-  },
-});
 
 export default {
   props: {

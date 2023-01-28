@@ -1,10 +1,12 @@
 import Vue from 'vue';
+import { parse as jsonParse } from 'JSONStream';
 
 const kubeclient = require("kubernetes-client");
 
 let client = new kubeclient.Client1_13();
 var podStream = null;
 var svcStream = null;
+var deploymentStream = null;
 
 function kubeDataSortComparison(a, b) {
   if(a.metadata.namespace == b.metadata.namespace) {
@@ -79,6 +81,10 @@ const state = {
   svc_data: {
     metadata: null,
     items: {}
+  },
+  deployment_data: {
+    metadata: null,
+    items: {}
   }
 }
 
@@ -106,13 +112,17 @@ const getters = {
   },
   getPodData: (state) => (podUid) => {
     return state.pod_data.items[podUid];
-  }
-  ,
+  },
+
   orderedSvcItems: (state) => {
     return sortResource(state.svc_data.items);
   },
   getSvcData: (state) => (svcUid) => {
     return state.svc_data.items[svcUid];
+  },
+
+  orderedDeploymentItems: (state) => {
+    return sortResource(state.deployment_data.items);
   },
 }
 
@@ -127,6 +137,10 @@ const actions = {
   fetchSvcData: function({ commit, getters }) {
     return fetchResource(client.api.v1.namespaces(getters.getSelectedNamespace).services, commit, 'setSvcData')
   },
+  fetchDeploymentData: function({ commit, getters }) {
+    return fetchResource(client.apis.apps.v1.namespaces(getters.getSelectedNamespace).deployments, commit, 'setDeploymentData')
+  },
+  
 
   stopPodWatch: function() {
     return new Promise((resolve) => {
@@ -184,15 +198,6 @@ const actions = {
       client.api.v1.namespaces(namespace).pods(name).delete();
     }
   },
-  
-  deleteSvc: function({ state }, svc_uid) {
-    var svcToRemove = state.svc_data.items[svc_uid];
-    if(svcToRemove) {
-      var namespace = svcToRemove.metadata.namespace;
-      var name = svcToRemove.metadata.name;
-      client.api.v1.namespaces(namespace).services(name).delete();
-    }
-  },
 
   stopSvcWatch: function() {
     return new Promise((resolve) => {
@@ -241,6 +246,75 @@ const actions = {
     });
   },
 
+  deleteSvc: function({ state }, svc_uid) {
+    var svcToRemove = state.svc_data.items[svc_uid];
+    if(svcToRemove) {
+      var namespace = svcToRemove.metadata.namespace;
+      var name = svcToRemove.metadata.name;
+      client.api.v1.namespaces(namespace).services(name).delete();
+    }
+  },
+
+  stopDeploymentWatch: function() {
+    return new Promise((resolve) => {
+      if (deploymentStream) {
+        deploymentStream.destroy();
+        deploymentStream = null;
+      }
+      resolve();
+    });
+  },
+
+  watchDeploymentData: async function({ commit, state, getters }) {
+    var rv = state.pod_data.metadata.resourceVersion;
+    deploymentStream = await client.apis.apps.v1.namespaces(getters.getSelectedNamespace).deployments.getStream({
+      qs: {
+        resourceVersion: rv,
+        watch: rv
+      }
+    });
+    var jsonifiedStream = new jsonParse();
+    deploymentStream.pipe(jsonifiedStream);
+
+    jsonifiedStream.on("data", res => {
+      var deployment_item = res.object;
+      if (res.type === "ADDED") {
+        // eslint-disable-next-line
+        deployment_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
+          res.object
+        );
+        commit('setDeploymentItem', deployment_item);
+        console.log("new object : " + deployment_item.metadata.name + " : " + deployment_item.metadata.uid);
+      } else if (res.type === "MODIFIED") {
+        // eslint-disable-next-line
+        deployment_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
+          res.object
+        );
+        commit('setDeploymentItem', deployment_item);
+        console.log("changed object : " + deployment_item.metadata.name + " : " + deployment_item.metadata.uid);
+      } else if (res.type === "DELETED") {
+        // eslint-disable-next-line
+        deployment_item = (({ kind, apiVersion, ...others }) => ({ ...others }))(
+          res.object
+        );
+        commit('deleteDeploymentItem', deployment_item);
+        console.log("deleted object : " + deployment_item.metadata.name + " : " + deployment_item.metadata.uid);
+      } else {
+        console.error("unknown type: " + JSON.stringify(res));
+      }
+    });
+  },
+
+  modifyDeploymentReplica: async function(_, { namespace, deploymentName, newReplica }) {
+    return client.apis.apps.v1.namespaces(namespace).deployment(deploymentName).patch({
+      body: {
+        spec: {
+          replicas: newReplica
+        }
+      }
+    });
+  },
+  
   getLogStream: async function(_, { podNamespace, podName, currContainer }) {
     return client.api.v1.namespaces(podNamespace).pods(podName).log.getByteStream({
       qs: {
@@ -295,6 +369,17 @@ const mutations = {
   deleteSvcItem(state, svcData) {
     Vue.delete(state.svc_data.items, getKey(svcData));
   },
+
+  setDeploymentData (state, { data }) {
+    Vue.set(state, 'deployment_data', data);
+  },
+  setDeploymentItem (state, deploymentData) {
+    Vue.set(state.deployment_data.items, getKey(deploymentData), deploymentData);
+  },
+  deleteDeploymentItem(state, deploymentData) {
+    Vue.delete(state.deployment_data.items, getKey(deploymentData));
+  },
+  
 }
 
 export default {
